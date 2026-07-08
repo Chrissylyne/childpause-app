@@ -65,17 +65,34 @@ function App() {
             <p>Loading...</p>
           ) : scripts.length > 0 ? (
             scripts.map((script) => (
-              <div key={script.id} className="script-item">
-                <div className="script-title">{script.title}</div>
+              <div 
+                key={script.id} 
+                className={`script-item ${script.premium ? 'premium-locked' : ''}`}
+              >
+                <div className="script-title">
+                  {script.title}
+                  {script.premium && <span className="premium-badge">🔒 Premium</span>}
+                </div>
                 {script.situation && (
                   <div style={{ fontSize: '12px', color: '#999' }}>
                     {script.situation}
                   </div>
                 )}
-                <div className="script-content">{script.content}</div>
-                {script.note && (
-                  <div style={{ fontSize: '12px', fontStyle: 'italic' }}>
-                    💡 {script.note}
+                {!script.premium ? (
+                  <>
+                    <div className="script-content">{script.content}</div>
+                    {script.note && (
+                      <div style={{ fontSize: '12px', fontStyle: 'italic' }}>
+                        💡 {script.note}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div style={{ padding: '20px', textAlign: 'center', background: '#f0f0f0', borderRadius: '4px' }}>
+                    <p style={{ marginBottom: '10px' }}>This script is available for premium members</p>
+                    <button style={{ padding: '10px 20px', background: '#9c27b0', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+                      Subscribe Now
+                    </button>
                   </div>
                 )}
               </div>
