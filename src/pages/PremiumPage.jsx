@@ -30,28 +30,37 @@ function PremiumPage() {
         flexWrap: 'wrap',
         marginTop: '2rem'
       }}>
-        <button style={{
-          padding: '1rem 2rem',
-          fontSize: '1rem',
-          backgroundColor: '#9333ea',
-          color: 'white',
-          border: 'none',
-          borderRadius: '8px',
-          cursor: 'pointer',
-          fontWeight: 'bold'
-        }}>
-          {t('premium.btnMonthly')}
-        </button>
-        <button style={{
-          padding: '1rem 2rem',
-          fontSize: '1rem',
-          backgroundColor: '#0070BA',
-          color: 'white',
-          border: 'none',
-          borderRadius: '8px',
-          cursor: 'pointer',
-          fontWeight: 'bold'
-        }}>
+      <button 
+  onClick={() => handleCheckout('price_1TdquC44QwaQ0WDovghPHLCt')}
+  style={{
+    padding: '1rem 2rem',
+    fontSize: '1rem',
+    backgroundColor: '#9333ea',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    fontWeight: 'bold'
+  }}
+>
+  {t('premium.btnMonthly')}
+</button>
+
+<button 
+  onClick={() => handleCheckout('price_1Tdqsh44QwaQ0WDoDxvUKepa')}
+  style={{
+    padding: '1rem 2rem',
+    fontSize: '1rem',
+    backgroundColor: '#0070BA',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    fontWeight: 'bold'
+  }}
+>
+  {t('premium.btnAnnual')}
+</button>
           {t('premium.btnAnnual')}
         </button>
       </div>
