@@ -4,13 +4,9 @@ const LanguageContext = createContext();
 
 export function LanguageProvider({ children }) {
   const [language, setLanguage] = useState('fr');
-
-  const toggleLanguage = () => {
-    setLanguage(language === 'fr' ? 'de' : 'fr');
-  };
-
+  
   return (
-    <LanguageContext.Provider value={{ language, toggleLanguage }}>
+    <LanguageContext.Provider value={{ language, setLanguage }}>
       {children}
     </LanguageContext.Provider>
   );
@@ -18,6 +14,7 @@ export function LanguageProvider({ children }) {
 
 export function useLanguage() {
   const context = useContext(LanguageContext);
+  console.log('useLanguage context:', context); // ← Ajoute ça
   if (!context) {
     throw new Error('useLanguage must be used within LanguageProvider');
   }
