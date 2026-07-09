@@ -9,7 +9,15 @@ function HomePage() {
   const [categories, setCategories] = useState([]);
   const [scripts, setScripts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedAgeRange, setSelectedAgeRange] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  // Age ranges: [min, max]
+  const ageRanges = [
+    { label: '2-5 ans/Jahre', min: 2, max: 5 },
+    { label: '6-9 ans/Jahre', min: 6, max: 9 },
+    { label: '10-12+ ans/Jahre', min: 10, max: 99 }
+  ];
 
   useEffect(() => {
     fetchCategories();
@@ -24,19 +32,30 @@ function HomePage() {
         .eq('language', language);
       if (error) throw error;
       setCategories(data || []);
+      setSelectedCategory(null); // Reset category when language changes
+      setScripts([]);
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
     setLoading(false);
   };
 
-  const fetchScripts = async (categoryId) => {
+  const fetchScripts = async (categoryId, ageRange = null) => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('scripts')
         .select('*')
         .eq('category_id', categoryId);
+
+      // Filter by age range if selected
+      if (ageRange) {
+        query = query
+          .gte('age_max', ageRange.min)
+          .lte('age_min', ageRange.max);
+      }
+
+      const { data, error } = await query;
       if (error) throw error;
       setScripts(data || []);
       setSelectedCategory(categoryId);
@@ -44,6 +63,21 @@ function HomePage() {
       console.error('Error fetching scripts:', error);
     }
     setLoading(false);
+  };
+
+  const handleCategoryClick = (categoryId) => {
+    if (selectedAgeRange) {
+      fetchScripts(categoryId, selectedAgeRange);
+    } else {
+      fetchScripts(categoryId);
+    }
+  };
+
+  const handleAgeRangeClick = (ageRange) => {
+    setSelectedAgeRange(ageRange);
+    if (selectedCategory) {
+      fetchScripts(selectedCategory, ageRange);
+    }
   };
 
   return (
@@ -88,6 +122,53 @@ function HomePage() {
         {language === 'fr' ? 'Scripts de parentalité pour chaque moment' : 'Eltern-Skripte für jeden Moment'}
       </p>
 
+      {/* FILTRE PAR ÂGE */}
+      <div style={{ marginBottom: '2rem' }}>
+        <h2 style={{ fontSize: '1rem', marginBottom: '1rem', color: 'hsl(var(--foreground))' }}>
+          {language === 'fr' ? 'Quel âge?' : 'Welches Alter?'}
+        </h2>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <button
+            onClick={() => {
+              setSelectedAgeRange(null);
+              if (selectedCategory) fetchScripts(selectedCategory);
+            }}
+            style={{
+              padding: '0.5rem 1rem',
+              backgroundColor: !selectedAgeRange ? 'hsl(var(--primary))' : 'hsl(var(--accent))',
+              color: !selectedAgeRange ? 'hsl(var(--primary-foreground))' : 'hsl(var(--foreground))',
+              border: 'none',
+              borderRadius: '0.25rem',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              fontSize: '0.9rem',
+              transition: 'all 0.3s'
+            }}
+          >
+            {language === 'fr' ? 'Tous les âges' : 'Alle Altersgruppen'}
+          </button>
+          {ageRanges.map((range) => (
+            <button
+              key={`${range.min}-${range.max}`}
+              onClick={() => handleAgeRangeClick(range)}
+              style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: selectedAgeRange?.min === range.min ? 'hsl(var(--primary))' : 'hsl(var(--accent))',
+                color: selectedAgeRange?.min === range.min ? 'hsl(var(--primary-foreground))' : 'hsl(var(--foreground))',
+                border: 'none',
+                borderRadius: '0.25rem',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                fontSize: '0.9rem',
+                transition: 'all 0.3s'
+              }}
+            >
+              {range.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* CATÉGORIES */}
       <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem', color: 'hsl(var(--foreground))' }}>
         {language === 'fr' ? 'Catégories' : 'Kategorien'}
@@ -105,7 +186,7 @@ function HomePage() {
               backgroundColor: selectedCategory === cat.id ? 'hsl(var(--accent))' : 'hsl(var(--card))',
               borderColor: selectedCategory === cat.id ? 'hsl(var(--primary))' : 'hsl(var(--border))'
             }}
-            onClick={() => fetchScripts(cat.id)}
+            onClick={() => handleCategoryClick(cat.id)}
             onMouseEnter={(e) => e.target.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)'}
             onMouseLeave={(e) => e.target.style.boxShadow = 'none'}
           >
@@ -146,6 +227,10 @@ function HomePage() {
                     )}
                   </div>
                   
+                  <div style={{ fontSize: '0.85rem', color: 'hsl(var(--muted-foreground))', marginBottom: '0.5rem' }}>
+                    {script.age_min}-{script.age_max} {language === 'fr' ? 'ans' : 'Jahre'}
+                  </div>
+
                   {script.situation && (
                     <div style={{ fontSize: '0.9rem', color: 'hsl(var(--muted-foreground))', marginBottom: '0.5rem' }}>
                       {script.situation}
@@ -178,7 +263,7 @@ function HomePage() {
             </div>
           ) : (
             <p style={{ color: 'hsl(var(--muted-foreground))' }}>
-              {language === 'fr' ? 'Aucun script trouvé' : 'Keine Skripte gefunden'}
+              {language === 'fr' ? 'Aucun script trouvé pour cet âge' : 'Keine Skripte für dieses Alter gefunden'}
             </p>
           )}
         </div>
