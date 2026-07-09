@@ -26,41 +26,43 @@ function Navigation() {
           <Link to="/privacy" style={{ textDecoration: 'none', color: 'hsl(var(--primary))' }}>{t('nav.privacy')}</Link>
         </div>
         
-        {/* Boutons FR/DE coulissants */}
-        <div style={{ display: 'flex', gap: '0.5rem', backgroundColor: 'hsl(var(--accent))', padding: '0.25rem', borderRadius: '2rem' }}>
-          <button
-            onClick={() => setLanguage('fr')}
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: language === 'fr' ? 'hsl(var(--primary))' : 'transparent',
-              color: language === 'fr' ? 'hsl(var(--primary-foreground))' : 'hsl(var(--muted-foreground))',
-              border: 'none',
-              borderRadius: '1.5rem',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-              fontSize: '0.9rem',
-              transition: 'all 0.3s ease'
-            }}
-          >
-            FR
-          </button>
-          <button
-            onClick={() => setLanguage('de')}
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: language === 'de' ? 'hsl(var(--primary))' : 'transparent',
-              color: language === 'de' ? 'hsl(var(--primary-foreground))' : 'hsl(var(--muted-foreground))',
-              border: 'none',
-              borderRadius: '1.5rem',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-              fontSize: '0.9rem',
-              transition: 'all 0.3s ease'
-            }}
-          >
-            DE
-          </button>
-        </div>
+      {/* Boutons FR/DE coulissants */}
+<div style={{ display: 'flex', gap: '0.5rem', backgroundColor: 'hsl(var(--accent))', padding: '0.25rem', borderRadius: '2rem', position: 'relative' }}>
+  <button
+    onClick={() => setLanguage('fr')}
+    style={{
+      padding: '0.5rem 1rem',
+      backgroundColor: language === 'fr' ? 'hsl(var(--primary))' : 'transparent',
+      color: language === 'fr' ? 'hsl(var(--primary-foreground))' : 'hsl(var(--muted-foreground))',
+      border: 'none',
+      borderRadius: '1.5rem',
+      cursor: 'pointer',
+      fontWeight: 'bold',
+      fontSize: '0.9rem',
+      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+      zIndex: language === 'fr' ? 2 : 1
+    }}
+  >
+    FR
+  </button>
+  <button
+    onClick={() => setLanguage('de')}
+    style={{
+      padding: '0.5rem 1rem',
+      backgroundColor: language === 'de' ? 'hsl(var(--primary))' : 'transparent',
+      color: language === 'de' ? 'hsl(var(--primary-foreground))' : 'hsl(var(--muted-foreground))',
+      border: 'none',
+      borderRadius: '1.5rem',
+      cursor: 'pointer',
+      fontWeight: 'bold',
+      fontSize: '0.9rem',
+      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+      zIndex: language === 'de' ? 2 : 1
+    }}
+  >
+    DE
+  </button>
+</div>
       </div>
     </nav>
   );
