@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient.js';
+import { useTranslations } from '../i18n/useTranslations.js';
 
 function HomePage() {
+  const { t } = useTranslations();
   const [categories, setCategories] = useState([]);
   const [scripts, setScripts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -41,10 +43,10 @@ function HomePage() {
 
   return (
     <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
-      <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>ChildPause</h1>
-      <p style={{ fontSize: '1.1rem', color: '#666', marginBottom: '2rem' }}>Parenting scripts for every moment</p>
+      <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>{t('home.title')}</h1>
+      <p style={{ fontSize: '1.1rem', color: '#666', marginBottom: '2rem' }}>{t('home.tagline')}</p>
 
-      <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem' }}>Categories</h2>
+      <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem' }}>{t('home.categories')}</h2>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', marginBottom: '3rem' }}>
         {categories.map((cat) => (
           <div
@@ -69,9 +71,9 @@ function HomePage() {
 
       {selectedCategory && (
         <div>
-          <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem' }}>Scripts</h2>
+          <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem' }}>{t('home.scripts')}</h2>
           {loading ? (
-            <p>Loading...</p>
+            <p>{t('home.loading')}</p>
           ) : scripts.length > 0 ? (
             <div style={{ display: 'grid', gap: '1rem' }}>
               {scripts.map((script) => (
@@ -86,7 +88,7 @@ function HomePage() {
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
                     <h3 style={{ margin: 0 }}>{script.title}</h3>
-                    {script.premium && <span style={{ padding: '0.25rem 0.5rem', backgroundColor: '#purple', color: 'white', borderRadius: '4px', fontSize: '0.8rem' }}>🔒 Premium</span>}
+                    {script.premium && <span style={{ padding: '0.25rem 0.5rem', backgroundColor: '#9333ea', color: 'white', borderRadius: '4px', fontSize: '0.8rem' }}>🔒 Premium</span>}
                   </div>
                   
                   {script.situation && (
@@ -108,9 +110,9 @@ function HomePage() {
                     </>
                   ) : (
                     <div style={{ padding: '1rem', textAlign: 'center', backgroundColor: '#f0f0f0', borderRadius: '4px', marginTop: '1rem' }}>
-                      <p style={{ margin: '0 0 0.5rem 0' }}>This script is available for premium members</p>
-                      <button style={{ padding: '0.5rem 1rem', backgroundColor: '#9c27b0', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
-                        Subscribe Now
+                      <p style={{ margin: '0 0 0.5rem 0' }}>{t('home.premiumMsg')}</p>
+                      <button style={{ padding: '0.5rem 1rem', backgroundColor: '#9333ea', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+                        {t('home.subscribeBtn')}
                       </button>
                     </div>
                   )}
@@ -118,7 +120,7 @@ function HomePage() {
               ))}
             </div>
           ) : (
-            <p>No scripts found</p>
+            <p>{t('home.noScripts')}</p>
           )}
         </div>
       )}
