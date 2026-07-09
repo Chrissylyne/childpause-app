@@ -25,39 +25,65 @@ function Navigation() {
           <Link to="/terms" style={{ textDecoration: 'none', color: 'hsl(var(--primary))' }}>{t('nav.terms')}</Link>
           <Link to="/privacy" style={{ textDecoration: 'none', color: 'hsl(var(--primary))' }}>{t('nav.privacy')}</Link>
         </div>
-        
-      {/* Boutons FR/DE coulissants */}
-<div style={{ display: 'flex', gap: '0.5rem', backgroundColor: 'hsl(var(--accent))', padding: '0.25rem', borderRadius: '2rem', position: 'relative' }}>
+   {/* Boutons FR/DE coulissants avec fond glissant */}
+<div style={{ 
+  display: 'inline-flex', 
+  gap: '0rem', 
+  backgroundColor: 'hsl(var(--accent))', 
+  padding: '0.25rem', 
+  borderRadius: '2rem', 
+  position: 'relative',
+  overflow: 'hidden'
+}}>
+  {/* Fond qui coulisse */}
+  <div
+    style={{
+      position: 'absolute',
+      top: '0.25rem',
+      left: '0.25rem',
+      width: 'calc(50% - 0.125rem)',
+      height: 'calc(100% - 0.5rem)',
+      backgroundColor: 'hsl(var(--primary))',
+      borderRadius: '1.5rem',
+      transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+      transform: language === 'de' ? 'translateX(calc(100% + 0.5rem))' : 'translateX(0)',
+      zIndex: 0
+    }}
+  />
+  
   <button
     onClick={() => setLanguage('fr')}
     style={{
       padding: '0.5rem 1rem',
-      backgroundColor: language === 'fr' ? 'hsl(var(--primary))' : 'transparent',
+      backgroundColor: 'transparent',
       color: language === 'fr' ? 'hsl(var(--primary-foreground))' : 'hsl(var(--muted-foreground))',
       border: 'none',
       borderRadius: '1.5rem',
       cursor: 'pointer',
       fontWeight: 'bold',
       fontSize: '0.9rem',
-      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-      zIndex: language === 'fr' ? 2 : 1
+      transition: 'color 0.4s',
+      position: 'relative',
+      zIndex: 1
     }}
   >
     FR
   </button>
+  
   <button
     onClick={() => setLanguage('de')}
     style={{
       padding: '0.5rem 1rem',
-      backgroundColor: language === 'de' ? 'hsl(var(--primary))' : 'transparent',
+      backgroundColor: 'transparent',
       color: language === 'de' ? 'hsl(var(--primary-foreground))' : 'hsl(var(--muted-foreground))',
       border: 'none',
       borderRadius: '1.5rem',
       cursor: 'pointer',
       fontWeight: 'bold',
       fontSize: '0.9rem',
-      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-      zIndex: language === 'de' ? 2 : 1
+      transition: 'color 0.4s',
+      position: 'relative',
+      zIndex: 1
     }}
   >
     DE
