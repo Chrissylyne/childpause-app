@@ -1,29 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient.js';
 import { useTranslations } from '../i18n/useTranslations.js';
+import { useLanguage } from '../contexts/LanguageContext.jsx';
 
 function HomePage() {
   const { t } = useTranslations();
+  const { language } = useLanguage();
   const [categories, setCategories] = useState([]);
   const [scripts, setScripts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
+ useEffect(() => {
+  fetchCategories();
+}, [language]);
 
-  const fetchCategories = async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase.from('categories').select('*');
-      if (error) throw error;
-      setCategories(data || []);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    }
-    setLoading(false);
-  };
+const fetchCategories = async () => {
+  setLoading(true);
+  try {
+    const { data, error } = await supabase
+      .from('categories')
+      .select('*')
+      .eq('language', language);
+    if (error) throw error;
+    setCategories(data || []);
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+  }
+  setLoading(false);
+};
 
   const fetchScripts = async (categoryId) => {
     setLoading(true);
