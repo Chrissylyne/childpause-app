@@ -19,6 +19,44 @@ function HomePage() {
     { label: '10-12+ ans/Jahre', min: 10, max: 99 }
   ];
 
+  // Script exemple supermarché (générique pour tous les âges)
+  const exampleScript = language === 'fr' ? {
+    title: 'Crise au supermarché',
+    situation: 'Ton enfant fait une crise parce qu\'il veut quelque chose',
+    content: 'Je vois que tu veux vraiment cette chose. Je comprends que c\'est difficile quand on n\'a pas ce qu\'on veut. Mais là c\'est non. Je sais que ça te rend triste. On va trouver ensemble une autre chose qui te plaît.',
+    note: 'Valide son émotion, reste ferme, redonne du pouvoir'
+  } : {
+    title: 'Krise im Supermarkt',
+    situation: 'Dein Kind hat einen Zusammenbruch, weil es etwas haben will',
+    content: 'Ich sehe, dass du das wirklich willst. Ich verstehe, dass es schwierig ist, wenn man das nicht bekommt, was man möchte. Aber das geht nicht. Ich weiß, dass es dich traurig macht. Wir finden zusammen etwas anderes, das dir Freude macht.',
+    note: 'Validiere die Emotion, bleib konsequent, gib Macht zurück'
+  };
+
+  // Testimonials
+  const testimonials = language === 'fr' ? [
+    {
+      text: 'Ça m\'apaise de savoir que j\'ai ça sous la main. Quand mon fils crie, je n\'ai plus besoin de me demander quoi dire.',
+      name: 'Luisa',
+      context: 'Maman de 3 enfants'
+    },
+    {
+      text: 'Je pensais que je faisais tout mal. Voir que d\'autres parents disent les mêmes choses m\'a rassurée.',
+      name: 'Sophie',
+      context: 'Maman de 2 enfants'
+    }
+  ] : [
+    {
+      text: 'Es beruhigt mich zu wissen, dass ich das zur Hand habe. Wenn mein Sohn schreit, brauche ich nicht mehr zu überlegen, was ich sagen soll.',
+      name: 'Luisa',
+      context: 'Mutter von 3 Kindern'
+    },
+    {
+      text: 'Ich dachte, ich mache alles falsch. Zu sehen, dass andere Eltern dasselbe sagen, hat mich beruhigt.',
+      name: 'Maria',
+      context: 'Mutter von 2 Kindern'
+    }
+  ];
+
   useEffect(() => {
     fetchCategories();
   }, [language]);
@@ -32,7 +70,7 @@ function HomePage() {
         .eq('language', language);
       if (error) throw error;
       setCategories(data || []);
-      setSelectedCategory(null); // Reset category when language changes
+      setSelectedCategory(null);
       setScripts([]);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -48,7 +86,6 @@ function HomePage() {
         .select('*')
         .eq('category_id', categoryId);
 
-      // Filter by age range if selected
       if (ageRange) {
         query = query
           .gte('age_max', ageRange.min)
@@ -122,6 +159,35 @@ function HomePage() {
         {language === 'fr' ? 'Scripts de parentalité pour chaque moment' : 'Eltern-Skripte für jeden Moment'}
       </p>
 
+      {/* SCRIPT D'EXEMPLE */}
+      <div style={{ padding: '1.5rem', backgroundColor: 'hsl(var(--accent))', borderRadius: '0.5rem', marginBottom: '2rem', border: '1px solid hsl(var(--border))' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75rem' }}>
+          <h3 style={{ margin: 0, color: 'hsl(var(--foreground))' }}>{exampleScript.title}</h3>
+          <span style={{ padding: '0.25rem 0.5rem', backgroundColor: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))', borderRadius: '0.25rem', fontSize: '0.75rem', fontWeight: 'bold' }}>
+            {language === 'fr' ? 'EXEMPLE GRATUIT' : 'KOSTENLOSES BEISPIEL'}
+          </span>
+        </div>
+        <div style={{ fontSize: '0.9rem', color: 'hsl(var(--muted-foreground))', marginBottom: '0.75rem' }}>
+          {exampleScript.situation}
+        </div>
+        <div style={{ fontSize: '1rem', lineHeight: '1.6', marginBottom: '0.75rem', color: 'hsl(var(--foreground))' }}>
+          {exampleScript.content}
+        </div>
+        <div style={{ fontSize: '0.9rem', fontStyle: 'italic', color: 'hsl(var(--muted-foreground))' }}>
+          💡 {exampleScript.note}
+        </div>
+      </div>
+
+      {/* FREEMIUM BADGE */}
+      <div style={{ padding: '1rem', backgroundColor: 'hsl(var(--secondary))', borderRadius: '0.5rem', marginBottom: '2rem', border: '1px solid hsl(var(--border))', textAlign: 'center' }}>
+        <p style={{ margin: '0 0 0.5rem 0', color: 'hsl(var(--secondary-foreground))', fontWeight: 'bold', fontSize: '0.95rem' }}>
+          🔓 {language === 'fr' ? 'Accès gratuit : 5 scripts par catégorie' : 'Kostenloser Zugang: 5 Skripte pro Kategorie'}
+        </p>
+        <p style={{ margin: 0, color: 'hsl(var(--secondary-foreground))', fontSize: '0.85rem' }}>
+          {language === 'fr' ? 'Accès complet à 3,99€/mois • Annulable à tout moment' : 'Vollzugriff ab 3,99€/Monat • Jederzeit kündbar'}
+        </p>
+      </div>
+
       {/* FILTRE PAR ÂGE */}
       <div style={{ marginBottom: '2rem' }}>
         <h2 style={{ fontSize: '1rem', marginBottom: '1rem', color: 'hsl(var(--foreground))' }}>
@@ -194,6 +260,40 @@ function HomePage() {
             <p style={{ margin: 0, fontSize: '0.9rem', color: 'hsl(var(--muted-foreground))' }}>{cat.language.toUpperCase()}</p>
           </div>
         ))}
+      </div>
+
+      {/* TESTIMONIALS */}
+      <div style={{ marginBottom: '3rem' }}>
+        <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem', color: 'hsl(var(--foreground))' }}>
+          {language === 'fr' ? 'Ce que les parents disent' : 'Was Eltern sagen'}
+        </h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
+          {testimonials.map((testimonial, idx) => (
+            <div
+              key={idx}
+              style={{
+                padding: '1.5rem',
+                backgroundColor: 'hsl(var(--card))',
+                borderRadius: '0.5rem',
+                border: '1px solid hsl(var(--border))',
+                display: 'flex',
+                flexDirection: 'column'
+              }}
+            >
+              <p style={{ fontSize: '1rem', lineHeight: '1.6', marginBottom: '1rem', color: 'hsl(var(--foreground))', fontStyle: 'italic' }}>
+                « {testimonial.text} »
+              </p>
+              <div style={{ marginTop: 'auto' }}>
+                <p style={{ margin: '0 0 0.25rem 0', fontWeight: 'bold', color: 'hsl(var(--foreground))' }}>
+                  {testimonial.name}
+                </p>
+                <p style={{ margin: 0, fontSize: '0.85rem', color: 'hsl(var(--muted-foreground))' }}>
+                  {testimonial.context}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* SCRIPTS */}
