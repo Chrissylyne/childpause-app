@@ -312,3 +312,21 @@ body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
 }
+
+@media (min-width: 768px) {
+  .desktop-menu {
+    display: flex !important;
+  }
+  .mobile-menu-btn {
+    display: none !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .desktop-menu {
+    display: none !important;
+  }
+  .mobile-menu-btn {
+    display: block !important;
+  }
+}
