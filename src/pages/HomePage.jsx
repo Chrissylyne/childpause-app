@@ -55,11 +55,11 @@ export default function HomePage() {
   const fetchScripts = async (categoryId) => {
     console.log('🔄 Fetching scripts pour catégorie:', categoryId, 'langue:', language);
     
-    // FIX: utiliser 'categorie' (nom correct dans Supabase scripts table)
+    // FIX: utiliser 'category_id' (nom correct dans Supabase scripts table)
     const { data, error } = await supabase
       .from('scripts')
       .select('*')
-      .eq('categorie', categoryId)
+      .eq('category_id', categoryId)
       .eq('language', language)
       .order('created_at', { ascending: true });
 
@@ -271,7 +271,7 @@ export default function HomePage() {
                     fontSize: '0.9rem',
                     color: 'hsl(var(--foreground) / 0.6))'
                   }}>
-                    {cat.script_count || scripts.filter(s => s.categorie === cat.id).length} scripts
+                    {cat.script_count || scripts.filter(s => s.category_id === cat.id).length} scripts
                   </p>
                 </div>
               ))}
