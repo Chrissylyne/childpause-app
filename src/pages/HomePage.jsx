@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../supabaseClient';
 import { useLanguage } from '../contexts/LanguageContext';
 
 export default function HomePage() {
