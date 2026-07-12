@@ -1,375 +1,543 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '../supabaseClient.js';
-import { useTranslations } from '../i18n/useTranslations.js';
+import React, { useEffect, useState } from 'react';
+import { supabase } from '../supabaseClient';
+import { useLanguage } from '../contexts/LanguageContext';
 
-function HomePage() {
-  const { t, language } = useTranslations();
-  const navigate = useNavigate();
+export default function HomePage() {
+  const { language } = useLanguage();
   const [categories, setCategories] = useState([]);
-  const [scripts, setScripts] = useState([]);
+  const [allScripts, setAllScripts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [selectedAgeRange, setSelectedAgeRange] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [userEmail, setUserEmail] = useState(null);
+  const [isPremium, setIsPremium] = useState(false);
 
-  // Age ranges: [min, max]
-  const ageRanges = [
-    { label: '2-5 ans/Jahre', min: 2, max: 5 },
-    { label: '6-9 ans/Jahre', min: 6, max: 9 },
-    { label: '10-12+ ans/Jahre', min: 10, max: 99 }
-  ];
-
-  // Script exemple supermarché (générique pour tous les âges)
-  const exampleScript = language === 'fr' ? {
-    title: 'Crise au supermarché',
-    situation: 'Ton enfant fait une crise parce qu\'il veut quelque chose',
-    content: 'Je vois que tu veux vraiment cette chose. Je comprends que c\'est difficile quand on n\'a pas ce qu\'on veut. Mais là c\'est non. Je sais que ça te rend triste. On va trouver ensemble une autre chose qui te plaît.',
-    note: 'Valide son émotion, reste ferme, redonne du pouvoir'
-  } : {
-    title: 'Krise im Supermarkt',
-    situation: 'Dein Kind hat einen Zusammenbruch, weil es etwas haben will',
-    content: 'Ich sehe, dass du das wirklich willst. Ich verstehe, dass es schwierig ist, wenn man das nicht bekommt, was man möchte. Aber das geht nicht. Ich weiß, dass es dich traurig macht. Wir finden zusammen etwas anderes, das dir Freude macht.',
-    note: 'Validiere die Emotion, bleib konsequent, gib Macht zurück'
+  // Fonction scroll vers les catégories
+  const handleCrisisClick = () => {
+    const element = document.getElementById('categories-section');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
   };
-
-  // Testimonials
-  const testimonials = language === 'fr' ? [
-    {
-      text: 'Ça m\'apaise de savoir que j\'ai ça sous la main. Quand mon fils crie, je n\'ai plus besoin de me demander quoi dire.',
-      name: 'Luisa',
-      context: 'Maman de 3 enfants'
-    },
-    {
-      text: 'Je pensais que je faisais tout mal. Voir que d\'autres parents disent les mêmes choses m\'a rassurée.',
-      name: 'Sophie',
-      context: 'Maman de 2 enfants'
-    }
-  ] : [
-    {
-      text: 'Es beruhigt mich zu wissen, dass ich das zur Hand habe. Wenn mein Sohn schreit, brauche ich nicht mehr zu überlegen, was ich sagen soll.',
-      name: 'Luisa',
-      context: 'Mutter von 3 Kindern'
-    },
-    {
-      text: 'Ich dachte, ich mache alles falsch. Zu sehen, dass andere Eltern dasselbe sagen, hat mich beruhigt.',
-      name: 'Maria',
-      context: 'Mutter von 2 Kindern'
-    }
-  ];
 
   useEffect(() => {
-    fetchCategories();
+    fetchCategoriesAndScripts();
+    checkUserPremium();
   }, [language]);
 
-  const fetchCategories = async () => {
+  // Charger catégories ET TOUS les scripts en une seule requête
+  const fetchCategoriesAndScripts = async () => {
     setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .eq('language', language);
-      if (error) throw error;
-      setCategories(data || []);
-      setSelectedCategory(null);
-      setScripts([]);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
+    console.log('🔄 Fetching categories pour langue:', language);
+    
+    // Charger les catégories
+    const { data: categoriesData, error: catError } = await supabase
+      .from('categories')
+      .select('*')
+      .eq('language', language)
+      .order('created_at', { ascending: true });
+
+    if (catError) {
+      console.error('❌ Erreur chargement catégories:', catError);
+    } else {
+      console.log('✓ Catégories chargées:', categoriesData);
+      setCategories(categoriesData || []);
+      if (categoriesData && categoriesData.length > 0) {
+        setSelectedCategory(categoriesData[0].id);
+      }
     }
+
+    // Charger TOUS les scripts (pour les comptages + affichage)
+    console.log('🔄 Fetching ALL scripts pour langue:', language);
+    const { data: scriptsData, error: scriptsError } = await supabase
+      .from('scripts')
+      .select('*')
+      .eq('langue', language)
+      .order('created_at', { ascending: true });
+
+    if (scriptsError) {
+      console.error('❌ Erreur chargement scripts:', scriptsError);
+    } else {
+      console.log('✓ TOUS les scripts chargés:', scriptsData?.length, 'scripts');
+      setAllScripts(scriptsData || []);
+    }
+
     setLoading(false);
   };
 
-  const fetchScripts = async (categoryId, ageRange = null) => {
-    setLoading(true);
-    try {
-      let query = supabase
-        .from('scripts')
-        .select('*')
-        .eq('category_id', categoryId);
-
-      if (ageRange) {
-        query = query
-          .gte('age_max', ageRange.min)
-          .lte('age_min', ageRange.max);
+  const checkUserPremium = async () => {
+    const email = localStorage.getItem('userEmail');
+    if (email) {
+      setUserEmail(email);
+      const { data } = await supabase
+        .from('users')
+        .select('is_premium')
+        .eq('email', email)
+        .single();
+      if (data) {
+        setIsPremium(data.is_premium);
       }
-
-      const { data, error } = await query;
-      if (error) throw error;
-      setScripts(data || []);
-      setSelectedCategory(categoryId);
-    } catch (error) {
-      console.error('Error fetching scripts:', error);
     }
-    setLoading(false);
   };
 
   const handleCategoryClick = (categoryId) => {
-    if (selectedAgeRange) {
-      fetchScripts(categoryId, selectedAgeRange);
-    } else {
-      fetchScripts(categoryId);
-    }
+    setSelectedCategory(categoryId);
   };
 
-  const handleAgeRangeClick = (ageRange) => {
-    setSelectedAgeRange(ageRange);
-    if (selectedCategory) {
-      fetchScripts(selectedCategory, ageRange);
-    }
+  const getScriptsForCategory = (categoryId) => {
+    return allScripts
+      .filter(s => s.category_id === categoryId)
+      .sort((a, b) => {
+        // Scripts gratuits (premium=FALSE) EN PREMIER
+        if (a.premium === false && b.premium === true) return -1;
+        if (a.premium === true && b.premium === false) return 1;
+        // Sinon, ordre de création
+        return new Date(a.created_at) - new Date(b.created_at);
+      });
   };
+
+  const canAccessScript = (script) => {
+    if (!script.premium) return true;
+    return isPremium;
+  };
+
+  const handleSubscribe = () => {
+    window.location.href = '/premium';
+  };
+
+  // Scripts affichés actuellement
+  const displayedScripts = selectedCategory ? getScriptsForCategory(selectedCategory) : [];
+
+  // Témoignages des mamans
+  const testimonials = {
+    fr: [
+      {
+        text: "Quand mon fils pique une crise au supermarché, j'avais des palpitations. Maintenant avec ChildPause, j'ai les mots tout prêts. Ça change vraiment.",
+        author: "Luisa, maman de 2 enfants"
+      },
+      {
+        text: "Je pensais que j'étais la seule à me sentir bloquée dans ces moments difficiles. Ces scripts m'ont sauvé — j'y vois plus clair et mon enfant aussi.",
+        author: "Sophie, maman de 3 enfants"
+      }
+    ],
+    de: [
+      {
+        text: "Mika raubte mir echt den Nerv – aber mit ChildPause finde ich in der Hitze des Moments ruhiger die richtigen Worte. Es hilft enorm.",
+        author: "Luisa, Mutter von 2 Kindern"
+      },
+      {
+        text: "Ich dachte, ich bin alleine mit diesen Herausforderungen. Diese App hat mir gezeigt, dass ich gar nicht so hilflos bin. Eine echte Erleichterung.",
+        author: "Anna, Mutter von 3 Kindern"
+      }
+    ]
+  };
+
+  const currentTestimonials = testimonials[language] || testimonials.fr;
 
   return (
-    <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
-      {/* BOUTON D'ALERTE ROUGE */}
-      <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: 'hsl(var(--background))' }}>
+      
+      {/* ===== SECTION HÉROS - URGENCE ===== */}
+      <section style={{
+        padding: '2rem 1rem',
+        textAlign: 'center',
+        maxWidth: '800px',
+        margin: '0 auto',
+        paddingTop: '3rem',
+        paddingBottom: '2rem'
+      }}>
+        
+        {/* Titre principal */}
+        <h1 style={{
+          fontSize: 'clamp(1.5rem, 5vw, 2.5rem)',
+          fontWeight: 'bold',
+          marginBottom: '1rem',
+          color: 'hsl(var(--foreground))',
+          lineHeight: '1.2'
+        }}>
+          {language === 'fr'
+            ? 'Mon enfant est en crise maintenant'
+            : 'Mein Kind ist gerade in einer Krise'
+          }
+        </h1>
+
+        {/* Sous-titre émotionnel */}
+        <p style={{
+          fontSize: '1.1rem',
+          marginBottom: '2rem',
+          color: 'hsl(var(--foreground) / 0.8)',
+          lineHeight: '1.6'
+        }}>
+          {language === 'fr'
+            ? 'Tu cherches les bons mots. Les voici.'
+            : 'Du suchst nach den richtigen Worten. Hier sind sie.'
+          }
+        </p>
+
+        {/* BOUTON CTA PRINCIPAL - AVEC onClick FONCTIONNEL */}
         <button
-          onClick={() => navigate('/emergency')}
+          onClick={handleCrisisClick}
           style={{
-            padding: '1.5rem 2rem',
-            fontSize: '1.1rem',
-            backgroundColor: 'hsl(var(--emergency))',
-            color: 'hsl(var(--emergency-foreground))',
+            padding: '1rem 2rem',
+            backgroundColor: 'hsl(var(--primary))',
+            color: 'white',
             border: 'none',
             borderRadius: '0.5rem',
-            cursor: 'pointer',
+            fontSize: '1.1rem',
             fontWeight: 'bold',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
             width: '100%',
             maxWidth: '400px',
-            transition: 'transform 0.2s, box-shadow 0.2s',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+            marginBottom: '1rem'
           }}
           onMouseEnter={(e) => {
+            e.target.style.backgroundColor = 'hsl(var(--primary) / 0.9)';
+            e.target.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)';
             e.target.style.transform = 'scale(1.02)';
-            e.target.style.boxShadow = '0 6px 16px rgba(220, 50, 50, 0.3)';
           }}
           onMouseLeave={(e) => {
-            e.target.style.transform = 'scale(1)';
+            e.target.style.backgroundColor = 'hsl(var(--primary))';
             e.target.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+            e.target.style.transform = 'scale(1)';
           }}
         >
-          {language === 'fr' ? 'MON ENFANT EST EN CRISE MAINTENANT' : 'MEIN KIND IST GERADE IN EINER KRISE'}
+          {language === 'fr'
+            ? 'Trouver une solution maintenant →'
+            : 'Jetzt eine Lösung finden →'
+          }
         </button>
-        <p style={{ fontSize: '0.9rem', color: 'hsl(var(--muted-foreground))', marginTop: '0.5rem' }}>
-          {language === 'fr' ? 'Les bons mots pour les moments les plus difficiles.' : 'Die richtigen Worte für die schwierigsten Momente.'}
+
+        {/* Phrase de confiance */}
+        <p style={{
+          fontSize: '0.9rem',
+          color: 'hsl(var(--foreground) / 0.6)',
+          marginTop: '1rem'
+        }}>
+          {language === 'fr'
+            ? '5 scripts gratuits par catégorie. Inspiré par la parentalité positive et la communication émotionnelle.'
+            : '5 Skripte kostenlos pro Kategorie. Inspiriert von positiver Erziehung und emotionaler Kommunikation.'
+          }
         </p>
-      </div>
+      </section>
 
-      {/* TITRE ET TAGLINE */}
-      <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem', color: 'hsl(var(--foreground))' }}>ChildPause</h1>
-      <p style={{ fontSize: '1.1rem', color: 'hsl(var(--reassurance-text))', marginBottom: '2rem' }}>
-        {language === 'fr' ? 'Scripts de parentalité pour chaque moment' : 'Eltern-Skripte für jeden Moment'}
-      </p>
-
-      {/* SCRIPT D'EXEMPLE */}
-      <div style={{ padding: '1.5rem', backgroundColor: 'hsl(var(--accent))', borderRadius: '0.5rem', marginBottom: '2rem', border: '1px solid hsl(var(--border))' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75rem' }}>
-          <h3 style={{ margin: 0, color: 'hsl(var(--foreground))' }}>{exampleScript.title}</h3>
-          <span style={{ padding: '0.25rem 0.5rem', backgroundColor: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))', borderRadius: '0.25rem', fontSize: '0.75rem', fontWeight: 'bold' }}>
-            {language === 'fr' ? 'EXEMPLE GRATUIT' : 'KOSTENLOSES BEISPIEL'}
-          </span>
-        </div>
-        <div style={{ fontSize: '0.9rem', color: 'hsl(var(--muted-foreground))', marginBottom: '0.75rem' }}>
-          {exampleScript.situation}
-        </div>
-        <div style={{ fontSize: '1rem', lineHeight: '1.6', marginBottom: '0.75rem', color: 'hsl(var(--foreground))' }}>
-          {exampleScript.content}
-        </div>
-        <div style={{ fontSize: '0.9rem', fontStyle: 'italic', color: 'hsl(var(--muted-foreground))' }}>
-          💡 {exampleScript.note}
-        </div>
-      </div>
-
-      {/* FREEMIUM BADGE */}
-      <div style={{ padding: '1rem', backgroundColor: 'hsl(var(--secondary))', borderRadius: '0.5rem', marginBottom: '2rem', border: '1px solid hsl(var(--border))', textAlign: 'center' }}>
-        <p style={{ margin: '0 0 0.5rem 0', color: 'hsl(var(--secondary-foreground))', fontWeight: 'bold', fontSize: '0.95rem' }}>
-          🔓 {language === 'fr' ? 'Accès gratuit : 5 scripts par catégorie' : 'Kostenloser Zugang: 5 Skripte pro Kategorie'}
-        </p>
-        <p style={{ margin: 0, color: 'hsl(var(--secondary-foreground))', fontSize: '0.85rem' }}>
-          {language === 'fr' ? 'Accès complet à 3,99€/mois • Annulable à tout moment' : 'Vollzugriff ab 3,99€/Monat • Jederzeit kündbar'}
-        </p>
-      </div>
-
-      {/* FILTRE PAR ÂGE */}
-      <div style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1rem', marginBottom: '1rem', color: 'hsl(var(--foreground))' }}>
-          {language === 'fr' ? 'Quel âge?' : 'Welches Alter?'}
-        </h2>
-        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-          <button
-            onClick={() => {
-              setSelectedAgeRange(null);
-              if (selectedCategory) fetchScripts(selectedCategory);
-            }}
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: !selectedAgeRange ? 'hsl(var(--primary))' : 'hsl(var(--accent))',
-              color: !selectedAgeRange ? 'hsl(var(--primary-foreground))' : 'hsl(var(--foreground))',
-              border: 'none',
-              borderRadius: '0.25rem',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-              fontSize: '0.9rem',
-              transition: 'all 0.3s'
-            }}
-          >
-            {language === 'fr' ? 'Tous les âges' : 'Alle Altersgruppen'}
-          </button>
-          {ageRanges.map((range) => (
-            <button
-              key={`${range.min}-${range.max}`}
-              onClick={() => handleAgeRangeClick(range)}
-              style={{
-                padding: '0.5rem 1rem',
-                backgroundColor: selectedAgeRange?.min === range.min ? 'hsl(var(--primary))' : 'hsl(var(--accent))',
-                color: selectedAgeRange?.min === range.min ? 'hsl(var(--primary-foreground))' : 'hsl(var(--foreground))',
-                border: 'none',
-                borderRadius: '0.25rem',
-                cursor: 'pointer',
-                fontWeight: 'bold',
-                fontSize: '0.9rem',
-                transition: 'all 0.3s'
-              }}
-            >
-              {range.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* CATÉGORIES */}
-      <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem', color: 'hsl(var(--foreground))' }}>
-        {language === 'fr' ? 'Catégories' : 'Kategorien'}
-      </h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '3rem' }}>
-        {categories.map((cat) => (
-          <div
-            key={cat.id}
-            style={{
-              padding: '1.5rem',
-              border: `2px solid hsl(var(--border))`,
-              borderRadius: '0.5rem',
-              cursor: 'pointer',
-              transition: 'all 0.3s',
-              backgroundColor: selectedCategory === cat.id ? 'hsl(var(--accent))' : 'hsl(var(--card))',
-              borderColor: selectedCategory === cat.id ? 'hsl(var(--primary))' : 'hsl(var(--border))'
-            }}
-            onClick={() => handleCategoryClick(cat.id)}
-            onMouseEnter={(e) => e.target.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)'}
-            onMouseLeave={(e) => e.target.style.boxShadow = 'none'}
-          >
-            <h3 style={{ margin: '0 0 0.5rem 0', color: 'hsl(var(--foreground))' }}>{cat.name}</h3>
-            <p style={{ margin: 0, fontSize: '0.9rem', color: 'hsl(var(--muted-foreground))' }}>{cat.language.toUpperCase()}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* TESTIMONIALS */}
-      <div style={{ marginBottom: '3rem' }}>
-        <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem', color: 'hsl(var(--foreground))' }}>
-          {language === 'fr' ? 'Ce que les parents disent' : 'Was Eltern sagen'}
-        </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
-          {testimonials.map((testimonial, idx) => (
-            <div
-              key={idx}
-              style={{
-                padding: '1.5rem',
-                backgroundColor: 'hsl(var(--card))',
-                borderRadius: '0.5rem',
-                border: '1px solid hsl(var(--border))',
-                display: 'flex',
-                flexDirection: 'column'
-              }}
-            >
-              <p style={{ fontSize: '1rem', lineHeight: '1.6', marginBottom: '1rem', color: 'hsl(var(--foreground))', fontStyle: 'italic' }}>
-                « {testimonial.text} »
-              </p>
-              <div style={{ marginTop: 'auto' }}>
-                <p style={{ margin: '0 0 0.25rem 0', fontWeight: 'bold', color: 'hsl(var(--foreground))' }}>
-                  {testimonial.name}
-                </p>
-                <p style={{ margin: 0, fontSize: '0.85rem', color: 'hsl(var(--muted-foreground))' }}>
-                  {testimonial.context}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* SCRIPTS */}
-      {selectedCategory && (
-        <div>
-          <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem', color: 'hsl(var(--foreground))' }}>
-            {language === 'fr' ? 'Scripts' : 'Skripte'}
+      {/* ===== SECTION CATÉGORIES - AVEC ID POUR SCROLL ===== */}
+      <section
+        id="categories-section"
+        style={{
+          padding: '2rem 1rem',
+          backgroundColor: 'hsl(var(--card))',
+          borderTop: '1px solid hsl(var(--border))',
+          marginTop: '2rem'
+        }}
+      >
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          
+          {/* Titre catégories */}
+          <h2 style={{
+            fontSize: '1.8rem',
+            marginBottom: '1.5rem',
+            color: 'hsl(var(--foreground))',
+            textAlign: 'center',
+            fontWeight: 'bold'
+          }}>
+            {language === 'fr' ? 'Choisir une situation' : 'Wähle eine Situation'}
           </h2>
+
+          {/* État de chargement ou debug */}
           {loading ? (
-            <p style={{ color: 'hsl(var(--muted-foreground))' }}>
+            <div style={{ textAlign: 'center', color: 'hsl(var(--foreground) / 0.6))' }}>
               {language === 'fr' ? 'Chargement...' : 'Wird geladen...'}
-            </p>
-          ) : scripts.length > 0 ? (
-            <div style={{ display: 'grid', gap: '1rem' }}>
-              {scripts.map((script) => (
-                <div
-                  key={script.id}
-                  style={{
-                    padding: '1.5rem',
-                    border: `1px solid hsl(var(--border))`,
-                    borderRadius: '0.5rem',
-                    backgroundColor: script.premium ? 'hsl(var(--accent))' : 'hsl(var(--card))'
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
-                    <h3 style={{ margin: 0, color: 'hsl(var(--foreground))' }}>{script.title}</h3>
-                    {script.premium && (
-                      <span style={{ padding: '0.25rem 0.5rem', backgroundColor: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))', borderRadius: '0.25rem', fontSize: '0.8rem', fontWeight: 'bold' }}>
-                        🔒 Premium
-                      </span>
-                    )}
-                  </div>
-                  
-                  <div style={{ fontSize: '0.85rem', color: 'hsl(var(--muted-foreground))', marginBottom: '0.5rem' }}>
-                    {script.age_min}-{script.age_max} {language === 'fr' ? 'ans' : 'Jahre'}
-                  </div>
-
-                  {script.situation && (
-                    <div style={{ fontSize: '0.9rem', color: 'hsl(var(--muted-foreground))', marginBottom: '0.5rem' }}>
-                      {script.situation}
-                    </div>
-                  )}
-
-                  {!script.premium ? (
-                    <>
-                      <div style={{ fontSize: '1rem', lineHeight: '1.6', marginBottom: '0.5rem', color: 'hsl(var(--foreground))' }}>
-                        {script.content}
-                      </div>
-                      {script.note && (
-                        <div style={{ fontSize: '0.9rem', fontStyle: 'italic', color: 'hsl(var(--muted-foreground))' }}>
-                          💡 {script.note}
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <div style={{ padding: '1rem', textAlign: 'center', backgroundColor: 'hsl(var(--secondary))', borderRadius: '0.25rem', marginTop: '1rem' }}>
-                      <p style={{ margin: '0 0 0.5rem 0', color: 'hsl(var(--secondary-foreground))' }}>
-                        {language === 'fr' ? 'Ce script est disponible pour les membres premium' : 'Dieses Skript ist für Premium-Mitglieder verfügbar'}
-                      </p>
-                      <button style={{ padding: '0.5rem 1rem', backgroundColor: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))', border: 'none', borderRadius: '0.25rem', cursor: 'pointer', fontWeight: 'bold' }}>
-                        {language === 'fr' ? "S'abonner" : 'Abonnieren'}
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ))}
+            </div>
+          ) : categories.length === 0 ? (
+            <div style={{ 
+              textAlign: 'center', 
+              padding: '2rem',
+              color: 'hsl(var(--foreground) / 0.6))',
+              backgroundColor: 'hsl(var(--background))',
+              borderRadius: '0.5rem'
+            }}>
+              <p>{language === 'fr' ? 'Aucune catégorie trouvée' : 'Keine Kategorien gefunden'}</p>
             </div>
           ) : (
-            <p style={{ color: 'hsl(var(--muted-foreground))' }}>
-              {language === 'fr' ? 'Aucun script trouvé pour cet âge' : 'Keine Skripte für dieses Alter gefunden'}
-            </p>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: '1.5rem',
+              marginBottom: '2rem'
+            }}>
+              {categories.map((cat) => {
+                const scriptCount = getScriptsForCategory(cat.id).length;
+                return (
+                  <div
+                    key={cat.id}
+                    style={{
+                      padding: '2rem 1.5rem',
+                      border: `2px solid ${selectedCategory === cat.id ? 'hsl(var(--primary))' : 'hsl(var(--border))'}`,
+                      borderRadius: '0.5rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                      backgroundColor: selectedCategory === cat.id ? 'hsl(var(--primary) / 0.1)' : 'hsl(var(--background))',
+                      boxShadow: selectedCategory === cat.id ? '0 4px 12px hsl(var(--primary) / 0.2)' : 'none',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      minHeight: '140px'
+                    }}
+                    onClick={() => handleCategoryClick(cat.id)}
+                    onMouseEnter={(e) => {
+                      if (selectedCategory !== cat.id) {
+                        e.currentTarget.style.borderColor = 'hsl(var(--primary) / 0.5)';
+                        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (selectedCategory !== cat.id) {
+                        e.currentTarget.style.borderColor = 'hsl(var(--border))';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }
+                    }}
+                  >
+                    <h3 style={{
+                      margin: '0 0 1rem 0',
+                      color: 'hsl(var(--foreground))',
+                      fontSize: '1.2rem',
+                      fontWeight: 'bold',
+                      lineHeight: '1.4'
+                    }}>
+                      {cat.name}
+                    </h3>
+                    <p style={{
+                      margin: '0',
+                      fontSize: '0.9rem',
+                      color: 'hsl(var(--foreground) / 0.7)',
+                      fontWeight: '600'
+                    }}>
+                      {scriptCount} {language === 'fr' ? 'solutions' : 'Lösungen'}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
           )}
         </div>
+      </section>
+
+      {/* ===== SECTION SCRIPTS ===== */}
+      {selectedCategory && (
+        <section style={{
+          padding: '2rem 1rem',
+          maxWidth: '1200px',
+          margin: '0 auto'
+        }}>
+          
+          {/* Titre scripts */}
+          <h2 style={{
+            fontSize: '1.5rem',
+            marginBottom: '1.5rem',
+            color: 'hsl(var(--foreground))',
+            fontWeight: 'bold'
+          }}>
+            {language === 'fr' ? 'Solutions disponibles' : 'Verfügbare Lösungen'}
+          </h2>
+
+          {/* Liste des scripts */}
+          {displayedScripts.length === 0 ? (
+            <div style={{
+              textAlign: 'center',
+              padding: '2rem',
+              color: 'hsl(var(--foreground) / 0.6))'
+            }}>
+              {language === 'fr' ? 'Aucun script trouvé' : 'Keine Skripte gefunden'}
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gap: '1rem' }}>
+              {displayedScripts.map((script, index) => {
+                const isFree = index < 5;
+                const isAccessible = canAccessScript(script);
+
+                return (
+                  <div
+                    key={script.id}
+                    style={{
+                      padding: '1.5rem',
+                      border: `1px solid hsl(var(--border))`,
+                      borderRadius: '0.5rem',
+                      backgroundColor: 'hsl(var(--card))',
+                      position: 'relative',
+                      opacity: isAccessible ? 1 : 0.6
+                    }}
+                  >
+                    {/* Badge Premium ou Gratuit */}
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'flex-start',
+                      marginBottom: '0.5rem'
+                    }}>
+                      <h3 style={{
+                        margin: 0,
+                        color: 'hsl(var(--foreground))',
+                        fontSize: '1.1rem',
+                        fontWeight: 'bold'
+                      }}>
+                        {script.title}
+                      </h3>
+                      <span style={{
+                        padding: '0.25rem 0.75rem',
+                        borderRadius: '0.25rem',
+                        fontSize: '0.75rem',
+                        fontWeight: 'bold',
+                        backgroundColor: isFree ? 'hsl(120, 100%, 85%)' : 'hsl(var(--primary) / 0.2)',
+                        color: isFree ? 'hsl(120, 100%, 25%)' : 'hsl(var(--primary))',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {isFree ? (language === 'fr' ? '✓ Gratuit' : '✓ Kostenlos') : '🔒 Premium'}
+                      </span>
+                    </div>
+
+                    {/* Contenu du script */}
+                    {isAccessible ? (
+                      <p style={{
+                        margin: '0.5rem 0',
+                        color: 'hsl(var(--foreground))',
+                        lineHeight: '1.6',
+                        fontSize: '0.95rem'
+                      }}>
+                        {script.content}
+                      </p>
+                    ) : (
+                      <div style={{
+                        padding: '1rem',
+                        backgroundColor: 'hsl(var(--primary) / 0.1)',
+                        borderRadius: '0.4rem',
+                        textAlign: 'center'
+                      }}>
+                        <p style={{
+                          margin: '0.5rem 0',
+                          color: 'hsl(var(--primary))',
+                          fontWeight: 'bold'
+                        }}>
+                          {language === 'fr'
+                            ? 'Ce script est réservé aux membres premium'
+                            : 'Dieses Skript ist nur für Premium-Mitglieder verfügbar'
+                          }
+                        </p>
+                        <button
+                          onClick={handleSubscribe}
+                          style={{
+                            marginTop: '0.5rem',
+                            padding: '0.5rem 1rem',
+                            backgroundColor: 'hsl(var(--primary))',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '0.4rem',
+                            cursor: 'pointer',
+                            fontWeight: 'bold',
+                            fontSize: '0.9rem',
+                            transition: 'background-color 0.3s'
+                          }}
+                          onMouseEnter={(e) => e.target.style.backgroundColor = 'hsl(var(--primary) / 0.9)'}
+                          onMouseLeave={(e) => e.target.style.backgroundColor = 'hsl(var(--primary))'}
+                        >
+                          {language === 'fr' ? "S'abonner" : 'Abonnieren'}
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Infos supplémentaires */}
+                    {script.age_min && script.age_max && (
+                      <p style={{
+                        marginTop: '0.75rem',
+                        fontSize: '0.85rem',
+                        color: 'hsl(var(--foreground) / 0.6))',
+                        margin: '0.75rem 0 0 0'
+                      }}>
+                        {language === 'fr' ? 'Âge:' : 'Alter:'} {script.age_min}-{script.age_max} ans
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
       )}
-    </main>
+
+      {/* ===== SECTION TÉMOIGNAGES ===== */}
+      <section style={{
+        padding: '3rem 1rem',
+        backgroundColor: 'hsl(168, 100%, 97%)',
+        marginTop: '3rem',
+        borderTop: '1px solid hsl(var(--border))',
+        borderBottom: '1px solid hsl(var(--border))'
+      }}>
+        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+          <h2 style={{
+            fontSize: '1.8rem',
+            marginBottom: '2rem',
+            color: 'hsl(var(--foreground))',
+            textAlign: 'center',
+            fontWeight: 'bold'
+          }}>
+            {language === 'fr' ? 'Ce que disent les mamans' : 'Das sagen die Mütter'}
+          </h2>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: '2rem'
+          }}>
+            {currentTestimonials.map((testimonial, index) => (
+              <div
+                key={index}
+                style={{
+                  padding: '2rem',
+                  backgroundColor: 'hsl(16, 80%, 90%)',
+                  borderRadius: '0.5rem',
+                  borderLeft: '4px solid hsl(var(--primary))',
+                  textAlign: 'center'
+                }}
+              >
+                <p style={{
+                  fontSize: '1rem',
+                  color: 'hsl(var(--foreground))',
+                  fontStyle: 'italic',
+                  lineHeight: '1.8',
+                  margin: '0 0 1rem 0'
+                }}>
+                  "{testimonial.text}"
+                </p>
+                <p style={{
+                  fontSize: '0.9rem',
+                  color: 'hsl(var(--foreground) / 0.7)',
+                  fontWeight: 'bold',
+                  margin: '0'
+                }}>
+                  — {testimonial.author}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== FOOTER CONFIANCE ===== */}
+      <section style={{
+        padding: '2rem 1rem',
+        textAlign: 'center',
+        borderTop: '1px solid hsl(var(--border))',
+        marginTop: '3rem',
+        color: 'hsl(var(--foreground) / 0.6))',
+        fontSize: '0.9rem'
+      }}>
+        <p>
+          {language === 'fr'
+            ? ' Créée par une mère. Pour tous ceux qui font de leur mieux.'
+            : ' Erstellt von einer Mutter. Für alle, die ihr Bestes geben.'
+          }
+        </p>
+      </section>
+    </div>
   );
 }
-
-export default HomePage;
