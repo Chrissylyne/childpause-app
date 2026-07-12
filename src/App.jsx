@@ -13,7 +13,6 @@ import EmergencyPage from './pages/EmergencyPage.jsx';
 function Navigation() {
   const { t } = useTranslations();
   const { language, setLanguage } = useLanguage();
-
   return (
     <nav style={{ padding: '1rem', borderBottom: '1px solid hsl(var(--border))', marginBottom: '2rem', backgroundColor: 'hsl(var(--background))' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', gap: '2rem', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
@@ -39,6 +38,7 @@ export default function App() {
   return (
     <Router>
       <LanguageProvider>
+        <PWAInstallPrompt />
         <Navigation />
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -52,30 +52,3 @@ export default function App() {
     </Router>
   );
 }
-<<<<<<< Updated upstream
-=======
-
-function App() {
-  return (
-    <LanguageProvider>
-      <Router>
-        <AppContent />
-      </Router>
-    </LanguageProvider>
-export default function App() {
-  return (
-    <LanguageProvider>
-      <PWAInstallPrompt />  {/* ← Ajouter ici */}
-      
-      {/* Reste de votre app */}
-      <Router>
-        {/* ... */}
-      </Router>
-    </LanguageProvider>
-  );
-}
-  );
-}
-
-export default App;
->>>>>>> Stashed changes
