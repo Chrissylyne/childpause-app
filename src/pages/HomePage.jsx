@@ -34,7 +34,6 @@ export default function HomePage() {
     setLoading(true);
     console.log('🔄 Fetching categories pour langue:', language);
     
-    // FIX: utiliser 'language' (nom correct dans Supabase) au lieu de 'langue'
     const { data, error } = await supabase
       .from('categories')
       .select('*')
@@ -48,17 +47,15 @@ export default function HomePage() {
       setCategories(data || []);
       if (data && data.length > 0) {
         setSelectedCategory(data[0].id);
-      } else {
-        console.warn('⚠️ Aucune catégorie retournée pour langue:', language);
       }
     }
     setLoading(false);
   };
 
   const fetchScripts = async (categoryId) => {
-    console.log('🔄 Fetching scripts pour catégorie:', categoryId);
+    console.log('🔄 Fetching scripts pour catégorie:', categoryId, 'langue:', language);
     
-    // FIX: utiliser 'language' (nom correct dans Supabase) au lieu de 'langue'
+    // FIX: utiliser 'categorie' (nom correct dans Supabase scripts table)
     const { data, error } = await supabase
       .from('scripts')
       .select('*')
@@ -227,9 +224,6 @@ export default function HomePage() {
               borderRadius: '0.5rem'
             }}>
               <p>{language === 'fr' ? 'Aucune catégorie trouvée' : 'Keine Kategorien gefunden'}</p>
-              <p style={{ fontSize: '0.8rem', marginTop: '0.5rem' }}>
-                (Vérifiez la console F12 pour les détails)
-              </p>
             </div>
           ) : (
             <div style={{
