@@ -5,7 +5,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 export default function HomePage() {
   const { language } = useLanguage();
   const [categories, setCategories] = useState([]);
-  const [scripts, setScripts] = useState([]);
+  const [allScripts, setAllScripts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [loading, setLoading] = useState(true);
   const [userEmail, setUserEmail] = useState(null);
@@ -20,54 +20,48 @@ export default function HomePage() {
   };
 
   useEffect(() => {
-    fetchCategories();
+    fetchCategoriesAndScripts();
     checkUserPremium();
   }, [language]);
 
-  useEffect(() => {
-    if (selectedCategory) {
-      fetchScripts(selectedCategory);
-    }
-  }, [selectedCategory, language]);
-
-  const fetchCategories = async () => {
+  // Charger catégories ET TOUS les scripts en une seule requête
+  const fetchCategoriesAndScripts = async () => {
     setLoading(true);
     console.log('🔄 Fetching categories pour langue:', language);
     
-    const { data, error } = await supabase
+    // Charger les catégories
+    const { data: categoriesData, error: catError } = await supabase
       .from('categories')
       .select('*')
       .eq('language', language)
       .order('created_at', { ascending: true });
 
-    if (error) {
-      console.error('❌ Erreur chargement catégories:', error);
+    if (catError) {
+      console.error('❌ Erreur chargement catégories:', catError);
     } else {
-      console.log('✓ Catégories chargées:', data);
-      setCategories(data || []);
-      if (data && data.length > 0) {
-        setSelectedCategory(data[0].id);
+      console.log('✓ Catégories chargées:', categoriesData);
+      setCategories(categoriesData || []);
+      if (categoriesData && categoriesData.length > 0) {
+        setSelectedCategory(categoriesData[0].id);
       }
     }
-    setLoading(false);
-  };
 
-  const fetchScripts = async (categoryId) => {
-    console.log('🔄 Fetching scripts pour catégorie:', categoryId, 'langue:', language);
-    
-    const { data, error } = await supabase
+    // Charger TOUS les scripts (pour les comptages + affichage)
+    console.log('🔄 Fetching ALL scripts pour langue:', language);
+    const { data: scriptsData, error: scriptsError } = await supabase
       .from('scripts')
       .select('*')
-      .eq('category_id', categoryId)
       .eq('langue', language)
       .order('created_at', { ascending: true });
 
-    if (error) {
-      console.error('❌ Erreur chargement scripts:', error);
+    if (scriptsError) {
+      console.error('❌ Erreur chargement scripts:', scriptsError);
     } else {
-      console.log('✓ Scripts chargés:', data?.length, 'scripts');
-      setScripts(data || []);
+      console.log('✓ TOUS les scripts chargés:', scriptsData?.length, 'scripts');
+      setAllScripts(scriptsData || []);
     }
+
+    setLoading(false);
   };
 
   const checkUserPremium = async () => {
@@ -89,6 +83,18 @@ export default function HomePage() {
     setSelectedCategory(categoryId);
   };
 
+  const getScriptsForCategory = (categoryId) => {
+    return allScripts
+      .filter(s => s.category_id === categoryId)
+      .sort((a, b) => {
+        // Scripts gratuits (premium=FALSE) EN PREMIER
+        if (a.premium === false && b.premium === true) return -1;
+        if (a.premium === true && b.premium === false) return 1;
+        // Sinon, ordre de création
+        return new Date(a.created_at) - new Date(b.created_at);
+      });
+  };
+
   const canAccessScript = (script) => {
     if (!script.premium) return true;
     return isPremium;
@@ -97,6 +103,35 @@ export default function HomePage() {
   const handleSubscribe = () => {
     window.location.href = '/premium';
   };
+
+  // Scripts affichés actuellement
+  const displayedScripts = selectedCategory ? getScriptsForCategory(selectedCategory) : [];
+
+  // Témoignages des mamans
+  const testimonials = {
+    fr: [
+      {
+        text: "Quand mon fils pique une crise au supermarché, j'avais des palpitations. Maintenant avec ChildPause, j'ai les mots tout prêts. Ça change vraiment.",
+        author: "Luisa, maman de 2 enfants"
+      },
+      {
+        text: "Je pensais que j'étais la seule à me sentir bloquée dans ces moments difficiles. Ces scripts m'ont sauvé — j'y vois plus clair et mon enfant aussi.",
+        author: "Sophie, maman de 3 enfants"
+      }
+    ],
+    de: [
+      {
+        text: "Mika raubte mir echt den Nerv – aber mit ChildPause finde ich in der Hitze des Moments ruhiger die richtigen Worte. Es hilft enorm.",
+        author: "Luisa, Mutter von 2 Kindern"
+      },
+      {
+        text: "Ich dachte, ich bin alleine mit diesen Herausforderungen. Diese App hat mir gezeigt, dass ich gar nicht so hilflos bin. Eine echte Erleichterung.",
+        author: "Anna, Mutter von 3 Kindern"
+      }
+    ]
+  };
+
+  const currentTestimonials = testimonials[language] || testimonials.fr;
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'hsl(var(--background))' }}>
@@ -231,49 +266,52 @@ export default function HomePage() {
               gap: '1rem',
               marginBottom: '2rem'
             }}>
-              {categories.map((cat) => (
-                <div
-                  key={cat.id}
-                  style={{
-                    padding: '1.5rem',
-                    border: `2px solid ${selectedCategory === cat.id ? 'hsl(var(--primary))' : 'hsl(var(--border))'}`,
-                    borderRadius: '0.5rem',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    backgroundColor: selectedCategory === cat.id ? 'hsl(var(--primary) / 0.1)' : 'hsl(var(--background))',
-                    boxShadow: selectedCategory === cat.id ? '0 4px 12px hsl(var(--primary) / 0.2)' : 'none'
-                  }}
-                  onClick={() => handleCategoryClick(cat.id)}
-                  onMouseEnter={(e) => {
-                    if (selectedCategory !== cat.id) {
-                      e.currentTarget.style.borderColor = 'hsl(var(--primary) / 0.5)';
-                      e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (selectedCategory !== cat.id) {
-                      e.currentTarget.style.borderColor = 'hsl(var(--border))';
-                      e.currentTarget.style.boxShadow = 'none';
-                    }
-                  }}
-                >
-                  <h3 style={{
-                    margin: '0 0 0.5rem 0',
-                    color: 'hsl(var(--foreground))',
-                    fontSize: '1.1rem',
-                    fontWeight: 'bold'
-                  }}>
-                    {cat.nom}
-                  </h3>
-                  <p style={{
-                    margin: '0',
-                    fontSize: '0.9rem',
-                    color: 'hsl(var(--foreground) / 0.6))'
-                  }}>
-                    {cat.script_count || scripts.filter(s => s.category_id === cat.id).length} scripts
-                  </p>
-                </div>
-              ))}
+              {categories.map((cat) => {
+                const scriptCount = getScriptsForCategory(cat.id).length;
+                return (
+                  <div
+                    key={cat.id}
+                    style={{
+                      padding: '1.5rem',
+                      border: `2px solid ${selectedCategory === cat.id ? 'hsl(var(--primary))' : 'hsl(var(--border))'}`,
+                      borderRadius: '0.5rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                      backgroundColor: selectedCategory === cat.id ? 'hsl(var(--primary) / 0.1)' : 'hsl(var(--background))',
+                      boxShadow: selectedCategory === cat.id ? '0 4px 12px hsl(var(--primary) / 0.2)' : 'none'
+                    }}
+                    onClick={() => handleCategoryClick(cat.id)}
+                    onMouseEnter={(e) => {
+                      if (selectedCategory !== cat.id) {
+                        e.currentTarget.style.borderColor = 'hsl(var(--primary) / 0.5)';
+                        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (selectedCategory !== cat.id) {
+                        e.currentTarget.style.borderColor = 'hsl(var(--border))';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }
+                    }}
+                  >
+                    <h3 style={{
+                      margin: '0 0 0.5rem 0',
+                      color: 'hsl(var(--foreground))',
+                      fontSize: '1.1rem',
+                      fontWeight: 'bold'
+                    }}>
+                      {cat.nom}
+                    </h3>
+                    <p style={{
+                      margin: '0',
+                      fontSize: '0.9rem',
+                      color: 'hsl(var(--foreground) / 0.6))'
+                    }}>
+                      {scriptCount} scripts
+                    </p>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
@@ -298,7 +336,7 @@ export default function HomePage() {
           </h2>
 
           {/* Liste des scripts */}
-          {scripts.length === 0 ? (
+          {displayedScripts.length === 0 ? (
             <div style={{
               textAlign: 'center',
               padding: '2rem',
@@ -308,7 +346,7 @@ export default function HomePage() {
             </div>
           ) : (
             <div style={{ display: 'grid', gap: '1rem' }}>
-              {scripts.map((script, index) => {
+              {displayedScripts.map((script, index) => {
                 const isFree = index < 5;
                 const isAccessible = canAccessScript(script);
 
@@ -420,6 +458,64 @@ export default function HomePage() {
         </section>
       )}
 
+      {/* ===== SECTION TÉMOIGNAGES ===== */}
+      <section style={{
+        padding: '3rem 1rem',
+        backgroundColor: 'hsl(168, 100%, 97%)',
+        marginTop: '3rem',
+        borderTop: '1px solid hsl(var(--border))',
+        borderBottom: '1px solid hsl(var(--border))'
+      }}>
+        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+          <h2 style={{
+            fontSize: '1.8rem',
+            marginBottom: '2rem',
+            color: 'hsl(var(--foreground))',
+            textAlign: 'center',
+            fontWeight: 'bold'
+          }}>
+            {language === 'fr' ? 'Ce que disent les mamans' : 'Das sagen die Mütter'}
+          </h2>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: '2rem'
+          }}>
+            {currentTestimonials.map((testimonial, index) => (
+              <div
+                key={index}
+                style={{
+                  padding: '2rem',
+                  backgroundColor: 'hsl(16, 80%, 90%)',
+                  borderRadius: '0.5rem',
+                  borderLeft: '4px solid hsl(var(--primary))',
+                  textAlign: 'center'
+                }}
+              >
+                <p style={{
+                  fontSize: '1rem',
+                  color: 'hsl(var(--foreground))',
+                  fontStyle: 'italic',
+                  lineHeight: '1.8',
+                  margin: '0 0 1rem 0'
+                }}>
+                  "{testimonial.text}"
+                </p>
+                <p style={{
+                  fontSize: '0.9rem',
+                  color: 'hsl(var(--foreground) / 0.7)',
+                  fontWeight: 'bold',
+                  margin: '0'
+                }}>
+                  — {testimonial.author}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ===== FOOTER CONFIANCE ===== */}
       <section style={{
         padding: '2rem 1rem',
@@ -431,8 +527,8 @@ export default function HomePage() {
       }}>
         <p>
           {language === 'fr'
-            ? '✨ Créée par une mère. Pour tous ceux qui font de leur mieux.'
-            : '✨ Erstellt von einer Mutter. Für alle, die ihr Bestes geben.'
+            ? ' Créée par une mère. Pour tous ceux qui font de leur mieux.'
+            : ' Erstellt von einer Mutter. Für alle, die ihr Bestes geben.'
           }
         </p>
       </section>
