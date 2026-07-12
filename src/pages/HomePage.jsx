@@ -32,6 +32,8 @@ export default function HomePage() {
 
   const fetchCategories = async () => {
     setLoading(true);
+    console.log('🔄 Fetching categories pour langue:', language);
+    
     const { data, error } = await supabase
       .from('categories')
       .select('*')
@@ -39,17 +41,22 @@ export default function HomePage() {
       .order('created_at', { ascending: true });
 
     if (error) {
-      console.error('Erreur chargement catégories:', error);
+      console.error('❌ Erreur chargement catégories:', error);
     } else {
+      console.log('✓ Catégories chargées:', data);
       setCategories(data || []);
       if (data && data.length > 0) {
         setSelectedCategory(data[0].id);
+      } else {
+        console.warn('⚠️ Aucune catégorie retournée pour langue:', language);
       }
     }
     setLoading(false);
   };
 
   const fetchScripts = async (categoryId) => {
+    console.log('🔄 Fetching scripts pour catégorie:', categoryId);
+    
     const { data, error } = await supabase
       .from('scripts')
       .select('*')
@@ -58,8 +65,9 @@ export default function HomePage() {
       .order('created_at', { ascending: true });
 
     if (error) {
-      console.error('Erreur chargement scripts:', error);
+      console.error('❌ Erreur chargement scripts:', error);
     } else {
+      console.log('✓ Scripts chargés:', data?.length, 'scripts');
       setScripts(data || []);
     }
   };
@@ -203,10 +211,23 @@ export default function HomePage() {
             {language === 'fr' ? 'Choisir une situation' : 'Wähle eine Situation'}
           </h2>
 
-          {/* Grille des catégories */}
+          {/* État de chargement ou debug */}
           {loading ? (
             <div style={{ textAlign: 'center', color: 'hsl(var(--foreground) / 0.6))' }}>
               {language === 'fr' ? 'Chargement...' : 'Wird geladen...'}
+            </div>
+          ) : categories.length === 0 ? (
+            <div style={{ 
+              textAlign: 'center', 
+              padding: '2rem',
+              color: 'hsl(var(--foreground) / 0.6))',
+              backgroundColor: 'hsl(var(--background))',
+              borderRadius: '0.5rem'
+            }}>
+              <p>{language === 'fr' ? 'Aucune catégorie trouvée' : 'Keine Kategorien gefunden'}</p>
+              <p style={{ fontSize: '0.8rem', marginTop: '0.5rem' }}>
+                (Vérifiez la console F12 pour les détails)
+              </p>
             </div>
           ) : (
             <div style={{
@@ -415,8 +436,8 @@ export default function HomePage() {
       }}>
         <p>
           {language === 'fr'
-            ? 'Créée par une mère. Pour tous ceux qui font de leur mieux.'
-            : 'Erstellt von einer Mutter. Für alle, die ihr Bestes geben.'
+            ? ' Créée par une mère. Pour tous ceux qui font de leur mieux.'
+            : ' Erstellt von einer Mutter. Für alle, die ihr Bestes geben.'
           }
         </p>
       </section>
