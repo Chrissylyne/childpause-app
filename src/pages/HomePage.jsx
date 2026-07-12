@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -10,14 +10,12 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [userEmail, setUserEmail] = useState(null);
   const [isPremium, setIsPremium] = useState(false);
-  
-  // ← AJOUT REF POUR SCROLL
-  const categoriesRef = useRef(null);
 
-  // ← AJOUT FONCTION SCROLL
+  // Fonction scroll vers les catégories
   const handleCrisisClick = () => {
-    if (categoriesRef.current) {
-      categoriesRef.current.scrollIntoView({ behavior: 'smooth' });
+    const element = document.getElementById('categories-section');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -134,7 +132,7 @@ export default function HomePage() {
           }
         </p>
 
-        {/* BOUTON CTA PRINCIPAL - AVEC onClick */}
+        {/* BOUTON CTA PRINCIPAL - AVEC onClick FONCTIONNEL */}
         <button
           onClick={handleCrisisClick}
           style={{
@@ -182,9 +180,9 @@ export default function HomePage() {
         </p>
       </section>
 
-      {/* ===== SECTION CATÉGORIES - AVEC REF ===== */}
+      {/* ===== SECTION CATÉGORIES - AVEC ID POUR SCROLL ===== */}
       <section
-        ref={categoriesRef}
+        id="categories-section"
         style={{
           padding: '2rem 1rem',
           backgroundColor: 'hsl(var(--card))',
@@ -417,8 +415,8 @@ export default function HomePage() {
       }}>
         <p>
           {language === 'fr'
-            ? '✨ Créée par une mère. Pour tous ceux qui font de leur mieux.'
-            : '✨ Erstellt von einer Mutter. Für alle, die ihr Bestes geben.'
+            ? 'Créée par une mère. Pour tous ceux qui font de leur mieux.'
+            : 'Erstellt von einer Mutter. Für alle, die ihr Bestes geben.'
           }
         </p>
       </section>
