@@ -54,18 +54,7 @@ function Navigation() {
     </nav>
   );
 }
-      {/* Language buttons */}
-      <div style={{ display: 'inline-flex', gap: '0rem', backgroundColor: 'hsl(var(--accent))', padding: '0.25rem', borderRadius: '2rem', position: 'relative', overflow: 'hidden' }}>
-        <button onClick={() => setLanguage('fr')} style={{ backgroundColor: language === 'fr' ? 'hsl(var(--primary))' : 'transparent', color: language === 'fr' ? 'white' : 'hsl(var(--foreground))', padding: '0.25rem 0.75rem', border: 'none', borderRadius: '2rem', cursor: 'pointer', transition: 'all 0.25s', boxShadow: language === 'fr' ? '0 2px 8px rgba(0,0,0,0.2)' }}>
-          FR
-        </button>
-        <button onClick={() => setLanguage('de')} style={{ backgroundColor: language === 'de' ? 'hsl(var(--primary))' : 'transparent', color: language === 'de' ? 'white' : 'hsl(var(--foreground))', padding: '0.25rem 0.75rem', border: 'none', borderRadius: '2rem', cursor: 'pointer', transition: 'all 0.25s', boxShadow: language === 'de' ? '0 2px 8px rgba(0,0,0,0.2)' }}>
-          DE
-        </button>
-      </div>
-    </nav>
-  );
-}
+  
   {/* Fond qui coulisse */}
   <div
     style={{
