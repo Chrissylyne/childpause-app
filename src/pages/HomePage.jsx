@@ -432,8 +432,8 @@ export default function HomePage() {
       }}>
         <p>
           {language === 'fr'
-            ? '✨ Créée par une mère. Pour tous ceux qui font de leur mieux.'
-            : '✨ Erstellt von einer Mutter. Für alle, die ihr Bestes geben.'
+            ? ' Créée par une mère. Pour tous ceux qui font de leur mieux.'
+            : ' Erstellt von einer Mutter. Für alle, die ihr Bestes geben.'
           }
         </p>
       </section>
