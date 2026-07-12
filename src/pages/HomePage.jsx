@@ -262,8 +262,8 @@ export default function HomePage() {
           ) : (
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-              gap: '1rem',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: '1.5rem',
               marginBottom: '2rem'
             }}>
               {categories.map((cat) => {
@@ -272,7 +272,7 @@ export default function HomePage() {
                   <div
                     key={cat.id}
                     style={{
-                      padding: '1.5rem',
+                      padding: '2rem 1.5rem',
                       border: `2px solid ${selectedCategory === cat.id ? 'hsl(var(--primary))' : 'hsl(var(--border))'}`,
                       borderRadius: '0.5rem',
                       cursor: 'pointer',
@@ -282,7 +282,7 @@ export default function HomePage() {
                       display: 'flex',
                       flexDirection: 'column',
                       justifyContent: 'space-between',
-                      minHeight: '120px'
+                      minHeight: '140px'
                     }}
                     onClick={() => handleCategoryClick(cat.id)}
                     onMouseEnter={(e) => {
@@ -299,19 +299,19 @@ export default function HomePage() {
                     }}
                   >
                     <h3 style={{
-                      margin: '0',
+                      margin: '0 0 1rem 0',
                       color: 'hsl(var(--foreground))',
-                      fontSize: '1.15rem',
+                      fontSize: '1.2rem',
                       fontWeight: 'bold',
                       lineHeight: '1.4'
                     }}>
-                      {cat.nom}
+                      {cat.nom || 'Catégorie'}
                     </h3>
                     <p style={{
-                      margin: '1rem 0 0 0',
-                      fontSize: '0.85rem',
-                      color: 'hsl(var(--foreground) / 0.65)',
-                      fontWeight: '500'
+                      margin: '0',
+                      fontSize: '0.9rem',
+                      color: 'hsl(var(--foreground) / 0.7)',
+                      fontWeight: '600'
                     }}>
                       {scriptCount} {language === 'fr' ? 'solutions' : 'Lösungen'}
                     </p>
