@@ -307,7 +307,7 @@ export default function HomePage() {
                       fontSize: '0.9rem',
                       color: 'hsl(var(--foreground) / 0.6))'
                     }}>
-                      {scriptCount} scripts
+                      {scriptCount} {language === 'fr' ? 'solutions' : 'Lösungen'}
                     </p>
                   </div>
                 );
