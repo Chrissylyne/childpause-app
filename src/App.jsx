@@ -1,3 +1,4 @@
+import PWAInstallPrompt from './components/PWAInstallPrompt';
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext.jsx';
@@ -51,3 +52,30 @@ export default function App() {
     </Router>
   );
 }
+<<<<<<< Updated upstream
+=======
+
+function App() {
+  return (
+    <LanguageProvider>
+      <Router>
+        <AppContent />
+      </Router>
+    </LanguageProvider>
+export default function App() {
+  return (
+    <LanguageProvider>
+      <PWAInstallPrompt />  {/* ← Ajouter ici */}
+      
+      {/* Reste de votre app */}
+      <Router>
+        {/* ... */}
+      </Router>
+    </LanguageProvider>
+  );
+}
+  );
+}
+
+export default App;
+>>>>>>> Stashed changes
