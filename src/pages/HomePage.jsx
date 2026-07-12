@@ -55,7 +55,6 @@ export default function HomePage() {
   const fetchScripts = async (categoryId) => {
     console.log('🔄 Fetching scripts pour catégorie:', categoryId, 'langue:', language);
     
-    // FIX: la colonne s'appelle 'langue' dans la table scripts (pas 'language')
     const { data, error } = await supabase
       .from('scripts')
       .select('*')
@@ -338,7 +337,7 @@ export default function HomePage() {
                         fontSize: '1.1rem',
                         fontWeight: 'bold'
                       }}>
-                        {script.titre}
+                        {script.title}
                       </h3>
                       <span style={{
                         padding: '0.25rem 0.75rem',
@@ -361,7 +360,7 @@ export default function HomePage() {
                         lineHeight: '1.6',
                         fontSize: '0.95rem'
                       }}>
-                        {script.contenu}
+                        {script.content}
                       </p>
                     ) : (
                       <div style={{
@@ -432,8 +431,8 @@ export default function HomePage() {
       }}>
         <p>
           {language === 'fr'
-            ? ' Créée par une mère. Pour tous ceux qui font de leur mieux.'
-            : ' Erstellt von einer Mutter. Für alle, die ihr Bestes geben.'
+            ? '✨ Créée par une mère. Pour tous ceux qui font de leur mieux.'
+            : '✨ Erstellt von einer Mutter. Für alle, die ihr Bestes geben.'
           }
         </p>
       </section>
