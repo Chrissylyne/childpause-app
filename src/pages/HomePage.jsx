@@ -278,7 +278,11 @@ export default function HomePage() {
                       cursor: 'pointer',
                       transition: 'all 0.3s ease',
                       backgroundColor: selectedCategory === cat.id ? 'hsl(var(--primary) / 0.1)' : 'hsl(var(--background))',
-                      boxShadow: selectedCategory === cat.id ? '0 4px 12px hsl(var(--primary) / 0.2)' : 'none'
+                      boxShadow: selectedCategory === cat.id ? '0 4px 12px hsl(var(--primary) / 0.2)' : 'none',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      minHeight: '120px'
                     }}
                     onClick={() => handleCategoryClick(cat.id)}
                     onMouseEnter={(e) => {
@@ -295,17 +299,19 @@ export default function HomePage() {
                     }}
                   >
                     <h3 style={{
-                      margin: '0 0 0.5rem 0',
+                      margin: '0',
                       color: 'hsl(var(--foreground))',
-                      fontSize: '1.1rem',
-                      fontWeight: 'bold'
+                      fontSize: '1.15rem',
+                      fontWeight: 'bold',
+                      lineHeight: '1.4'
                     }}>
                       {cat.nom}
                     </h3>
                     <p style={{
-                      margin: '0',
-                      fontSize: '0.9rem',
-                      color: 'hsl(var(--foreground) / 0.6))'
+                      margin: '1rem 0 0 0',
+                      fontSize: '0.85rem',
+                      color: 'hsl(var(--foreground) / 0.65)',
+                      fontWeight: '500'
                     }}>
                       {scriptCount} {language === 'fr' ? 'solutions' : 'Lösungen'}
                     </p>
@@ -527,8 +533,8 @@ export default function HomePage() {
       }}>
         <p>
           {language === 'fr'
-            ? ' Créée par une mère. Pour tous ceux qui font de leur mieux.'
-            : ' Erstellt von einer Mutter. Für alle, die ihr Bestes geben.'
+            ? '✨ Créée par une mère. Pour tous ceux qui font de leur mieux.'
+            : '✨ Erstellt von einer Mutter. Für alle, die ihr Bestes geben.'
           }
         </p>
       </section>
