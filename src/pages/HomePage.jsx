@@ -353,9 +353,9 @@ function HomePage() {
                       <p style={{ margin: '0 0 0.5rem 0', color: 'hsl(var(--secondary-foreground))' }}>
                         {language === 'fr' ? 'Ce script est disponible pour les membres premium' : 'Dieses Skript ist für Premium-Mitglieder verfügbar'}
                       </p>
-                      <button style={{ padding: '0.5rem 1rem', backgroundColor: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))', border: 'none', borderRadius: '0.25rem', cursor: 'pointer', fontWeight: 'bold' }}>
-                        {language === 'fr' ? "S'abonner" : 'Abonnieren'}
-                      </button>
+                     <button onClick={() => window.location.href = '/premium'} style={{ padding: '0.5rem 1rem', backgroundColor: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))', border: 'none', borderRadius: '0.25rem', cursor: 'pointer', fontWeight: 'bold' }}>
+  {language === 'fr' ? "S'abonner" : 'Abonnieren'}
+</button>
                     </div>
                   )}
                 </div>
