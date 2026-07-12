@@ -34,10 +34,11 @@ export default function HomePage() {
     setLoading(true);
     console.log('🔄 Fetching categories pour langue:', language);
     
+    // FIX: utiliser 'language' (nom correct dans Supabase) au lieu de 'langue'
     const { data, error } = await supabase
       .from('categories')
       .select('*')
-      .eq('langue', language)
+      .eq('language', language)
       .order('created_at', { ascending: true });
 
     if (error) {
@@ -57,11 +58,12 @@ export default function HomePage() {
   const fetchScripts = async (categoryId) => {
     console.log('🔄 Fetching scripts pour catégorie:', categoryId);
     
+    // FIX: utiliser 'language' (nom correct dans Supabase) au lieu de 'langue'
     const { data, error } = await supabase
       .from('scripts')
       .select('*')
       .eq('categorie', categoryId)
-      .eq('langue', language)
+      .eq('language', language)
       .order('created_at', { ascending: true });
 
     if (error) {
@@ -436,8 +438,8 @@ export default function HomePage() {
       }}>
         <p>
           {language === 'fr'
-            ? ' Créée par une mère. Pour tous ceux qui font de leur mieux.'
-            : ' Erstellt von einer Mutter. Für alle, die ihr Bestes geben.'
+            ? '✨ Créée par une mère. Pour tous ceux qui font de leur mieux.'
+            : '✨ Erstellt von einer Mutter. Für alle, die ihr Bestes geben.'
           }
         </p>
       </section>
