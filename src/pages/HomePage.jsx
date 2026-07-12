@@ -55,12 +55,12 @@ export default function HomePage() {
   const fetchScripts = async (categoryId) => {
     console.log('🔄 Fetching scripts pour catégorie:', categoryId, 'langue:', language);
     
-    // FIX: utiliser 'category_id' (nom correct dans Supabase scripts table)
+    // FIX: la colonne s'appelle 'langue' dans la table scripts (pas 'language')
     const { data, error } = await supabase
       .from('scripts')
       .select('*')
       .eq('category_id', categoryId)
-      .eq('language', language)
+      .eq('langue', language)
       .order('created_at', { ascending: true });
 
     if (error) {
