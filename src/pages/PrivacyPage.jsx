@@ -1,8 +1,10 @@
 import React from 'react';
 import { useTranslations } from '../i18n/useTranslations.js';
+import { useLanguage } from '../contexts/LanguageContext';
 
 function PrivacyPage() {
   const { t } = useTranslations();
+  const { language } = useLanguage();
 
   return (
     <div style={{ minHeight: '100vh', padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
@@ -13,9 +15,8 @@ function PrivacyPage() {
         <p>{t('privacy.p2')}</p>
         <p>{t('privacy.p3')}</p>
         <p>{t('privacy.p4')}</p>
-        
         <p style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid #ddd' }}>
-          Pour toute question : <a href="mailto:contact@childpause.online" style={{ color: '#007bff', textDecoration: 'none' }}>contact@childpause.online</a>
+  {language === 'fr' ? 'Pour toute question' : 'Bei Fragen'} : <a href="mailto:contact@childpause.online" style={{ color: '#007bff', textDecoration: 'none' }}>contact@childpause.online</a>
         </p>
       </div>
     </div>
