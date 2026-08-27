@@ -453,7 +453,7 @@ export default function HomePage() {
                         color: 'hsl(var(--foreground) / 0.6))',
                         margin: '0.75rem 0 0 0'
                       }}>
-                        {language === 'fr' ? 'Âge:' : 'Alter:'} {script.age_min}-{script.age_max} ans
+                        {language === 'fr' ? 'Âge:' : 'Alter:'} {script.age_min}-{script.age_max} {language === 'fr' ? 'ans' : 'Jahre'}
                       </p>
                     )}
                   </div>
