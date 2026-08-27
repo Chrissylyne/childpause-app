@@ -31,7 +31,7 @@ function PremiumPage() {
         marginTop: '2rem'
       }}>
         <a 
-          href="https://buy.stripe.com/fZuaEQ6PI69Td7vb8I7AI01"
+          href="https://buy.stripe.com/fZufZaqgi8i1ebz0u47AI02"
           target="_blank"
           rel="noopener noreferrer"
           style={{
@@ -51,7 +51,7 @@ function PremiumPage() {
         </a>
 
         <a 
-          href="https://buy.stripe.com/9B6eV6gqi8i19Vj2Cc7AI00"
+          href="https://buy.stripe.com/5kQ7sEb5Y8i1c3r7Ww7AI03"
           target="_blank"
           rel="noopener noreferrer"
           style={{
