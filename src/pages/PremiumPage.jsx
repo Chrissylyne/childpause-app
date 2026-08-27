@@ -1,9 +1,7 @@
 import React from 'react';
 import { useTranslations } from '../i18n/useTranslations.js';
-
 function PremiumPage() {
   const { t } = useTranslations();
-
   return (
     <div style={{ minHeight: '100vh', padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
       <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem', textAlign: 'center' }}>{t('premium.title')}</h1>
@@ -49,7 +47,6 @@ function PremiumPage() {
         >
           {t('premium.btnMonthly')}
         </a>
-
         <a 
           href="https://buy.stripe.com/5kQ7sEb5Y8i1c3r7Ww7AI03"
           target="_blank"
@@ -73,5 +70,4 @@ function PremiumPage() {
     </div>
   );
 }
-
 export default PremiumPage;
