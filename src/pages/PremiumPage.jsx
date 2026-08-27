@@ -29,7 +29,7 @@ function PremiumPage() {
         marginTop: '2rem'
       }}>
         <a 
-          href="https://buy.stripe.com/fZufZaqgi8i1ebz0u47AI02"
+       href="https://buy.stripe.com/fZufZagqi8i1ebz0u47AI02"
           target="_blank"
           rel="noopener noreferrer"
           style={{
