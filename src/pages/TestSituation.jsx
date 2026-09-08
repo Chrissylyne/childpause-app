@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getSituationById } from '../data/testSituations.js';
@@ -225,6 +226,62 @@ export default function TestSituation() {
     zIndex: 100,
   };
 
+  return (
+    <div style={containerStyle}>
+      <div style={headerStyle}>
+        <h2 style={titleStyle}>{situation.title}</h2>
+        <p style={subtitleStyle}>{situation.subtitle}</p>
+      </div>
+
+      <div style={sectionStyle}>
+        <h3 style={sectionTitleStyle}>🗣️ DIS</h3>
+        <p style={phraseStyle}>{situation.content.dis}</p>
+      </div>
+
+      <div style={sectionStyle}>
+        <h3 style={sectionTitleStyle}>👉 FAIS MAINTENANT</h3>
+        <p style={textStyle}>{situation.content.fais}</p>
+      </div>
+
+      <div style={sectionStyle}>
+        <h3 style={sectionTitleStyle}>🚫 ÉVITE</h3>
+        <p style={textStyle}>{situation.content.evite}</p>
+      </div>
+
+      <div style={sectionStyle}>
+        <h3 style={sectionTitleStyle}>🔥 S'IL CONTINUE</h3>
+        <p style={textStyle}>{situation.content.siContinue}</p>
+      </div>
+
+      <div style={objectiveStyle}>
+        <h4 style={objectiveTitleStyle}>⏱️ TON OBJECTIF MAINTENANT</h4>
+        <p style={objectiveTextStyle}>{situation.content.objectif}</p>
+      </div>
+
+      <div style={whyStyle}>
+        <h4 style={whyTitleStyle}>💭 POURQUOI ÇA PEUT AIDER</h4>
+        <p style={whyTextStyle}>{situation.content.pourquoi}</p>
+      </div>
+
+      {showThankYou && (
+        <div style={thankYouStyle}>
+          <p>En phase de test. Merci de ton intérêt !</p>
+        </div>
+      )}
+
+      {showPaywall && <Paywall onCTA={handlePaywallCTA} onDismiss={handlePaywallDismiss} situationId={id} />}
+
+      {showSurvey && <PaywallSurvey onSubmit={handleSurveySubmit} />}
+
+      {showAbandonSurvey && <AbandonSurvey onSubmit={handleAbandonSurveySubmit} />}
+
+      {!showPaywall && !showThankYou && !showSurvey && !showAbandonSurvey && (
+        <div style={footerStyle}>
+          <button style={buttonStyle} onClick={handleNextSituation} onMouseEnter={(e) => e.target.style.opacity = '0.9'} onMouseLeave={(e) => e.target.style.opacity = '1'}>
+            Voir une autre situation
+          </button>
+          <a href="/test" style={backLinkStyle}>← Retour</a>
+        </div>
       )}
     </div>
   );
