@@ -18,9 +18,6 @@ function TermsPage() {
           <strong>{t('terms.p5')}</strong>
         </p>
         
-        <p>{t('terms.p6')}</p>
-        <p>{t('terms.p7')}</p>
-        
         <p style={{ marginTop: '2rem' }}>
           {t('terms.p8')}: <a href="mailto:contact@childpause.online" style={{ color: '#007bff', textDecoration: 'none' }}>contact@childpause.online</a>
         </p>

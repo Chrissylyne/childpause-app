@@ -262,8 +262,8 @@ export default function HomePage() {
           ) : (
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: '1.5rem',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+              gap: '1rem',
               marginBottom: '2rem'
             }}>
               {categories.map((cat) => {
@@ -272,17 +272,13 @@ export default function HomePage() {
                   <div
                     key={cat.id}
                     style={{
-                      padding: '2rem 1.5rem',
+                      padding: '1.5rem',
                       border: `2px solid ${selectedCategory === cat.id ? 'hsl(var(--primary))' : 'hsl(var(--border))'}`,
                       borderRadius: '0.5rem',
                       cursor: 'pointer',
                       transition: 'all 0.3s ease',
                       backgroundColor: selectedCategory === cat.id ? 'hsl(var(--primary) / 0.1)' : 'hsl(var(--background))',
-                      boxShadow: selectedCategory === cat.id ? '0 4px 12px hsl(var(--primary) / 0.2)' : 'none',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'space-between',
-                      minHeight: '140px'
+                      boxShadow: selectedCategory === cat.id ? '0 4px 12px hsl(var(--primary) / 0.2)' : 'none'
                     }}
                     onClick={() => handleCategoryClick(cat.id)}
                     onMouseEnter={(e) => {
@@ -299,21 +295,19 @@ export default function HomePage() {
                     }}
                   >
                     <h3 style={{
-                      margin: '0 0 1rem 0',
+                      margin: '0 0 0.5rem 0',
                       color: 'hsl(var(--foreground))',
-                      fontSize: '1.2rem',
-                      fontWeight: 'bold',
-                      lineHeight: '1.4'
+                      fontSize: '1.1rem',
+                      fontWeight: 'bold'
                     }}>
-                      {cat.name}
+                      {cat.nom}
                     </h3>
                     <p style={{
                       margin: '0',
                       fontSize: '0.9rem',
-                      color: 'hsl(var(--foreground) / 0.7)',
-                      fontWeight: '600'
+                      color: 'hsl(var(--foreground) / 0.6))'
                     }}>
-                      {scriptCount} {language === 'fr' ? 'solutions' : 'Lösungen'}
+                      {scriptCount} scripts
                     </p>
                   </div>
                 );
@@ -453,7 +447,7 @@ export default function HomePage() {
                         color: 'hsl(var(--foreground) / 0.6))',
                         margin: '0.75rem 0 0 0'
                       }}>
-                        {language === 'fr' ? 'Âge:' : 'Alter:'} {script.age_min}-{script.age_max} {language === 'fr' ? 'ans' : 'Jahre'}
+                        {language === 'fr' ? 'Âge:' : 'Alter:'} {script.age_min}-{script.age_max} ans
                       </p>
                     )}
                   </div>
@@ -533,8 +527,6 @@ export default function HomePage() {
       }}>
         <p>
           {language === 'fr'
-            ? ' Créée par une mère. Pour tous ceux qui font de leur mieux.'
-            : ' Erstellt von einer Mutter. Für alle, die ihr Bestes geben.'
             ? '✨ Créée par une mère. Pour tous ceux qui font de leur mieux.'
             : '✨ Erstellt von einer Mutter. Für alle, die ihr Bestes geben.'
           }

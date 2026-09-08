@@ -31,10 +31,10 @@ export const translations = {
     premium: {
       title: 'Accès complet',
       subtitle: 'Tout ce dont tu as besoin, exactement quand tu en as besoin.',
-      p1: 'Avec ChildPause Premium, tu débloques l\'intégralité des scripts dans les neuf catégories, pour toutes les tranches d\'âge.',
+      p1: 'Avec ChildPause Premium, tu débloques l\'intégralité des scripts dans les neuf catégories pour toutes les tranches d\'âge.',
       whatYouGet: 'Ce qui est débloqué :',
-      li1: 'Tous les 140+ scripts de chaque catégorie',
-      li2: 'Accès immédiat au bouton urgence',
+      li1: 'Toutes les solutions débloquées',
+      li2: 'Bouton SOS — Aide en moins de 10 secondes',
       li3: 'Nouveaux scripts ajoutés chaque mois, sans surcoût',
       p2: 'La version gratuite donne accès à 5 scripts par catégorie. Les situations les plus difficiles sont en accès Premium.',
       p3: 'Pas de frais cachés. Annulable à tout moment. Avec l\'abonnement annuel, vous économisez 40% par rapport au mensuel.',
@@ -42,7 +42,8 @@ export const translations = {
       btnAnnual: 'Annuel — 49€/an',
       badgePopular: 'LE CHOIX DES PARENTS',
       badgeSavings: 'Économisez 40%',
-      guarantee: '🛡️ Garantie 7 jours satisfait ou remboursé. Si l\'app ne réduit pas les tensions à la maison dès la première semaine, écrivez-nous pour un remboursement intégral. Zéro question, zéro friction.',
+      socialProof: 'Le bouton SOS nous a sauvé trois crises d\'affilée. On paie juste pour la tranquillité d\'esprit.',
+      socialProofAuthor: 'Marie, maman de 2 enfants',
       faqTitle: 'Questions fréquentes',
       faqQ1: 'Puis-je tester gratuitement avant ?',
       faqA1: 'Oui. Les 5 premiers scripts de chaque catégorie sont gratuits et accessibles sans inscription. Cela vous donne une bonne idée de la qualité.',
@@ -55,10 +56,8 @@ export const translations = {
       p2: 'L\'abonnement mensuel est de 6,99€/mois et l\'abonnement annuel de 49€/an.',
       p3: 'Vous pouvez annuler à tout moment. Aucun remboursement pour la période en cours.',
       p4: 'Les scripts proposés sont des suggestions de communication bienveillante. Ils ne constituent pas un avis médical ou psychologique.',
-      p5: '© 2026 ChildPause — Tous droits réservés',
-      p6: 'L\'ensemble du contenu de ce site (scripts, formulations, textes, structure et design) est protégé par le droit d\'auteur.',
-      p7: 'Toute reproduction, même partielle, est strictement interdite.',
-      p8: 'Pour toute question : contact@childpause.online',
+      p5: '© 2026 ChildPause — Tous droits réservés. L\'ensemble du contenu de ce site (scripts, formulations, textes, structure et design) est protégé par le droit d\'auteur. Toute reproduction, même partielle, est strictement interdite.',
+      p8: 'Pour toute question',
     },
     privacy: {
       title: 'Confidentialité',
@@ -100,10 +99,10 @@ export const translations = {
     premium: {
       title: 'Vollständiger Zugang',
       subtitle: 'Alles, was du brauchst, genau wenn du es brauchst.',
-      p1: 'Mit ChildPause Premium schaltest du alle Skripte in den neun Kategorien frei, für alle Altersgruppen.',
+      p1: 'Mit ChildPause Premium schaltest du alle Skripte in den neun Kategorien für alle Altersgruppen frei.',
       whatYouGet: 'Das ist entsperrt:',
-      li1: 'Alle 140+ Skripte jeder Kategorie',
-      li2: 'Sofortiger Zugriff auf die Notfall-Schaltfläche',
+      li1: 'Alle Lösungen entsperrt',
+      li2: 'SOS-Notfall-Knopf — Hilfe in weniger als 10 Sekunden',
       li3: 'Neue Skripte werden monatlich hinzugefügt, ohne Zusatzkosten',
       p2: 'Die kostenlose Version bietet Zugriff auf 5 Skripte pro Kategorie. Die schwierigsten Situationen sind im Premium-Zugang.',
       p3: 'Keine versteckten Gebühren. Jederzeit kündbar. Mit dem Jahresabonnement sparen Sie 40% gegenüber dem monatlichen Plan.',
@@ -111,7 +110,8 @@ export const translations = {
       btnAnnual: 'Jährlich — 49€/Jahr',
       badgePopular: 'WAHL DER ELTERN',
       badgeSavings: 'Sparen Sie 40%',
-      guarantee: '🛡️ Zufriedenheitsgarantie 7 Tage oder Geld zurück. Wenn die App die Spannungen zu Hause ab der ersten Woche nicht abbaut, schreiben Sie uns für eine vollständige Rückerstattung. Null Fragen, null Reibung.',
+      socialProof: 'Der SOS-Knopf hat uns schon drei Krisen-Abende gerettet. Jeden Cent wert.',
+      socialProofAuthor: 'Anna, Mutter von 2 Kindern',
       faqTitle: 'Häufig gestellte Fragen',
       faqQ1: 'Kann ich kostenlos testen, bevor ich kaufe?',
       faqA1: 'Ja. Die ersten 5 Skripte jeder Kategorie sind kostenlos und zugänglich, ohne sich anmelden zu müssen. Das gibt Ihnen eine gute Vorstellung von der Qualität.',
@@ -124,10 +124,8 @@ export const translations = {
       p2: 'Das Monatsabonnement kostet 6,99€/Monat und das Jahresabonnement 49€/Jahr.',
       p3: 'Du kannst jederzeit kündigen. Keine Rückerstattung für die laufende Periode.',
       p4: 'Die angebotenen Skripte sind Vorschläge für wohlwollende Kommunikation. Sie stellen keine medizinische oder psychologische Beratung dar.',
-      p5: '© 2026 ChildPause — Alle Rechte vorbehalten',
-      p6: 'Der gesamte Inhalt dieser Website (Skripte, Formulierungen, Texte, Struktur und Design) ist urheberrechtlich geschützt.',
-      p7: 'Jede Vervielfältigung, auch teilweise, ist strengstens verboten.',
-      p8: 'Bei Fragen: contact@childpause.online',
+      p5: '© 2026 ChildPause — Alle Rechte vorbehalten. Der gesamte Inhalt dieser Website (Skripte, Formulierungen, Texte, Struktur und Design) ist urheberrechtlich geschützt. Jede Vervielfältigung, auch teilweise, ist strengstens verboten.',
+      p8: 'Bei Fragen',
     },
     privacy: {
       title: 'Datenschutz',
@@ -141,7 +139,6 @@ export const translations = {
 
 export function useTranslation() {
   return (key, defaultValue = '') => {
-    // Simple getter: "nav.home" => translations[language].nav.home
-    return key; // Pour maintenant, retourne juste la clé
+    return key;
   };
 }
