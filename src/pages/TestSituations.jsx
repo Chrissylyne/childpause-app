@@ -1,0 +1,86 @@
+export const TEST_SITUATIONS = [
+  {
+    id: 'screens',
+    order: 1,
+    title: 'ARRÊTER LES ÉCRANS',
+    subtitle: '« Encore 5 minutes ! »',
+    emoji: '📱',
+    free: true,
+    content: {
+      dis: `« Je sais que tu veux continuer. C'est difficile d'arrêter quand on s'amuse. L'écran s'arrête maintenant. »`,
+      fais: `Éteins l'écran calmement et annonce immédiatement ce qui vient ensuite : « Maintenant, on va prendre le bain. » Ne transforme pas l'arrêt en négociation.`,
+      evite: `« Encore cinq minutes… » si tu sais déjà que tu ne tiendras pas cette limite. Évite aussi les longues explications pendant qu'il est déjà très énervé.`,
+      siContinue: `« Tu es très en colère. Tu peux être en colère. L'écran reste éteint. » Puis reste sur la même limite.`,
+      objectif: `Pas lui faire comprendre pourquoi tu as raison. L'aider à passer de l'écran à l'activité suivante.`,
+      pourquoi: `Nommer son émotion le rassure et aide son cerveau à se calmer. Annoncer la suite lui donne une "raison" d'avancer. Pas une négociation.`,
+    },
+  },
+  {
+    id: 'meltdown',
+    order: 2,
+    title: 'GROSSE COLÈRE',
+    subtitle: 'Il crie, pleure ou se roule par terre',
+    emoji: '😡',
+    free: true,
+    content: {
+      dis: `« Je vois que tu es très en colère. Je suis là. »`,
+      fais: `Reste calme. Reste proche. Ne parle pas beaucoup. Laisse la crise se dérouler. Si tu cries, tu amplifies sa colère.`,
+      evite: `« Arrête de pleurer ! » ou « Tu es trop grand pour ça ». Évite de le forcer à s'excuser immédiatement ou de lui demander pourquoi il pleure.`,
+      siContinue: `Si la crise s'intensifie et que tu sens que tu vas disjoncter, éloigne-toi quelques secondes si tu peux. Demande de l'aide si nécessaire.`,
+      objectif: `Ne pas arrêter la crise. L'aider à la traverser sans qu'elle devienne une bataille.`,
+      pourquoi: `Un enfant en crise a perdu l'accès à son cortex préfrontal. Les palabres, explications, punitions le maintiennent en crise. Ta sérénité le calme plus que tes paroles.`,
+    },
+  },
+  {
+    id: 'sleep',
+    order: 3,
+    title: 'ALLER DORMIR',
+    subtitle: '« Je ne veux pas dormir ! »',
+    emoji: '🌙',
+    free: true,
+    content: {
+      dis: `« Le rituel c'est fini. Maintenant, tu dors. Je sais que tu n'as pas envie. Je reste là. »`,
+      fais: `Pose une limite claire sur le rituel (histoire OU chanson, pas les deux). Après, tu restes au calme à proximité. Si il te rappelle, tu reviens 10-15 secondes, puis tu pars à nouveau.`,
+      evite: `Ne promets pas « encore une histoire » si tu sais que tu vas craquer. Évite aussi de rester collé toute la nuit ou de finir dans ton lit.`,
+      siContinue: `Il te rappelle? Tu reviens brièvement (calm, monotone). Pas de nouvelles activités, pas de nouvelles histoires. Juste : « Je suis là. Maintenant, tu dors. »`,
+      objectif: `Pas le forcer à dormir. Créer un cadre où il peut se calmer et s'endormir.`,
+      pourquoi: `Les enfants qui refusent dormir testent les limites ET expriment l'anxiété. Une limite cohérente + ta présence rassurent son cerveau.`,
+    },
+  },
+  {
+    id: 'transition',
+    order: 4,
+    title: 'PARTIR DU PARC',
+    subtitle: 'Impossible de quitter l\'endroit où il s\'amuse',
+    emoji: '🚪',
+    free: false,
+    content: {
+      dis: `« On part du parc maintenant. On reviendra demain. » (5 min avant : « Dans 5 min, on part. »)`,
+      fais: `Annonce 5 min avant. Puis à 0, tu n'expliques pas, tu pars (le prends si besoin). Nomme ce qui vient après : « On va acheter du pain pour le dîner. »`,
+      evite: `Ne dis pas « Encore 10 minutes » si tu ne le penses pas. Évite les menaces ou les promesses pour le convaincre.`,
+      siContinue: `Il se met à hurler? Tu le portes calmement ou tu restes à proximité. Pas de punition. Juste : « Je sais, c'est difficile. On revient demain. »`,
+      objectif: `Pas le faire obéir avec menace. L'habituer à une structure prévisible pour les transitions.`,
+      pourquoi: `Les transitions sont difficiles neurologiquement. Une annonce claire + une limite cohérente = moins de crise chaque fois.`,
+    },
+  },
+  {
+    id: 'hitting',
+    order: 5,
+    title: 'FRAPPER / MORDRE / TAPER',
+    subtitle: 'Il tape, mord ou pousse quand il est frustré',
+    emoji: '👊',
+    free: false,
+    content: {
+      dis: `« Je vois que tu es très fâché. Pas de coups. » (Voix calme, ferme.)`,
+      fais: `Éloigne-le de la situation ou éloigne-toi toi-même. Moins de paroles. Juste la limite : pas de coups. Ensuite, on ne reparle pas de l'incident pendant 20 min.`,
+      evite: `Ne crie pas, ne le tape pas en retour, ne le traite pas de « violent » ou « méchant ». Évite aussi de dramatiser ou de faire un sermon.`,
+      siContinue: `S'il recommence? Même limite, même ton. Pas plus de punition. Juste : « Pas de coups. Je te mets à l'écart 2 min. »`,
+      objectif: `Sécurité d'abord. Éducation sur la gestion de frustration = plus tard, en temps calme.`,
+      pourquoi: `Un enfant qui frappe est débordé émotionnellement. La punition augmente la rage. La fermeté sans colère + éloignement = il apprend à s'arrêter.`,
+    },
+  },
+];
+
+export function getSituationById(id) {
+  return TEST_SITUATIONS.find((s) => s.id === id);
+}
