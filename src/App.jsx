@@ -43,11 +43,7 @@ export default function App() {
       <LanguageProvider>
         <PWAInstallPrompt />
         <Navigation />
-<<<<<<< HEAD
-       <Routes>
-=======
- <Routes>
->>>>>>> origin/main
+<Routes>
   <Route path="/" element={<HomePage />} />
   <Route path="/about" element={<AboutPage />} />
   <Route path="/terms" element={<TermsPage />} />
@@ -55,15 +51,12 @@ export default function App() {
   <Route path="/premium" element={<PremiumPage />} />
   <Route path="/emergency" element={<EmergencyPage />} />
   
-<<<<<<< HEAD
-  {/* V1 TEST */}
-=======
   {/* V1 TEST ROUTES */}
->>>>>>> origin/main
   <Route path="/test" element={<TestLanding />} />
   <Route path="/test/situations" element={<TestSituations />} />
   <Route path="/test/situation/:id" element={<TestSituation />} />
 </Routes>
+
       </LanguageProvider>
     </Router>
   );
