@@ -10,6 +10,10 @@ import PrivacyPage from './pages/PrivacyPage.jsx';
 import PremiumPage from './pages/PremiumPage.jsx';
 import EmergencyPage from './pages/EmergencyPage.jsx';
 
+import TestLanding from './pages/TestLanding.jsx';
+import TestSituations from './pages/TestSituations.jsx';
+import TestSituation from './pages/TestSituation.jsx';
+
 function Navigation() {
   const { t } = useTranslations();
   const { language, setLanguage } = useLanguage();
