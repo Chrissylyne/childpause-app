@@ -1,0 +1,86 @@
+export const TEST_SITUATIONS = [
+  {
+    id: 'screens',
+    order: 1,
+    title: 'ARRÊTER LES ÉCRANS',
+    subtitle: '« Encore 5 minutes ! »',
+    emoji: '📱',
+    free: true,
+    content: {
+      dis: `« Je sais que tu veux continuer. L'écran s'arrête maintenant. »`,
+      fais: `Éteins l'écran, annonce la suite. Ne négocie pas.`,
+      evite: `Ne dis pas « encore 5 min » si tu ne le tiens pas.`,
+      siContinue: `« Tu es en colère. L'écran reste éteint. »`,
+      objectif: `Aider ton enfant à passer de l'écran à l'activité suivante.`,
+      pourquoi: `Nommer l'émotion rassure. Annoncer la suite donne une raison d'avancer. Pas une négociation.`,
+    },
+  },
+  {
+    id: 'meltdown',
+    order: 2,
+    title: 'GROSSE COLÈRE',
+    subtitle: 'Il crie, pleure ou se roule par terre',
+    emoji: '😡',
+    free: true,
+    content: {
+      dis: `« Je vois que tu es très en colère. Je suis là. »`,
+      fais: `Reste calme et proche. Ne parle pas beaucoup. Laisse la crise se dérouler.`,
+      evite: `Ne crie pas, ne force pas les excuses, ne fais pas de sermon.`,
+      siContinue: `Reste à proximité. Si tu sens que tu vas disjoncter, éloigne-toi 30 sec.`,
+      objectif: `L'aider à traverser sa crise sans la transformer en bataille.`,
+      pourquoi: `Un enfant en crise n'entend pas. Ta sérénité le calme bien plus que tes paroles.`,
+    },
+  },
+  {
+    id: 'sleep',
+    order: 3,
+    title: 'ALLER DORMIR',
+    subtitle: '« Je ne veux pas dormir ! »',
+    emoji: '🌙',
+    free: true,
+    content: {
+      dis: `« Le rituel est fini. Maintenant tu dors. Je sais que tu n'as pas envie. Je reste là. »`,
+      fais: `Limite le rituel (histoire OU chanson). Après, reste calme à proximité. Si rappel, reviens 10 sec puis pars.`,
+      evite: `Ne promets pas « une histoire de plus » si tu vas craquer. Pas de rester collé toute la nuit.`,
+      siContinue: `Reviens brièvement (calme, monotone). Pas d'activité nouvelle. Juste : « Je suis là. Maintenant dors. »`,
+      objectif: `Créer un cadre où il peut se calmer et s'endormir.`,
+      pourquoi: `Les enfants testent les limites ET expriment l'anxiété. Une limite cohérente + ta présence rassurent.`,
+    },
+  },
+  {
+    id: 'transition',
+    order: 4,
+    title: 'PARTIR DU PARC',
+    subtitle: 'Impossible de quitter l\'endroit où il s\'amuse',
+    emoji: '🚪',
+    free: false,
+    content: {
+      dis: `« On part du parc maintenant. On reviendra demain. »`,
+      fais: `Annonce 5 min avant. À 0, tu n'expliques pas, tu pars (prends-le si besoin). Annonce la suite.`,
+      evite: `Ne dis pas « encore 10 min » si tu ne le penses pas. Pas de menaces.`,
+      siContinue: `Il hurle ? Porte-le calmement ou reste à proximité. Pas de punition. « Je sais, c'est difficile. On revient demain. »`,
+      objectif: `L'habituer à des transitions prévisibles.`,
+      pourquoi: `Les transitions sont difficiles neurologiquement. Une annonce claire + une limite cohérente = moins de crise chaque fois.`,
+    },
+  },
+  {
+    id: 'hitting',
+    order: 5,
+    title: 'FRAPPER / MORDRE / TAPER',
+    subtitle: 'Il tape, mord ou pousse quand il est frustré',
+    emoji: '👊',
+    free: false,
+    content: {
+      dis: `« Je vois que tu es très fâché. Pas de coups. »`,
+      fais: `Éloigne-le calmement de la situation. Moins de paroles. Juste la limite : pas de coups.`,
+      evite: `Ne crie pas, ne le tape pas en retour, ne le traite pas de « violent ».`,
+      siContinue: `Même limite, même ton. « Pas de coups. Je te mets à l'écart 2 min. »`,
+      objectif: `Sécurité d'abord. Éducation en temps calme, après.`,
+      pourquoi: `Un enfant qui frappe est débordé émotionnellement. La fermeté sans colère + éloignement = il apprend à s'arrêter.`,
+    },
+  },
+];
+
+export function getSituationById(id) {
+  return TEST_SITUATIONS.find((s) => s.id === id);
+}
