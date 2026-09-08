@@ -9,6 +9,9 @@ import TermsPage from './pages/TermsPage.jsx';
 import PrivacyPage from './pages/PrivacyPage.jsx';
 import PremiumPage from './pages/PremiumPage.jsx';
 import EmergencyPage from './pages/EmergencyPage.jsx';
+import TestLanding from './pages/TestLanding.jsx';
+import TestSituations from './pages/TestSituations.jsx';
+import TestSituation from './pages/TestSituation.jsx';
 
 function Navigation() {
   const { t } = useTranslations();
@@ -40,14 +43,19 @@ export default function App() {
       <LanguageProvider>
         <PWAInstallPrompt />
         <Navigation />
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/terms" element={<TermsPage />} />
-          <Route path="/privacy" element={<PrivacyPage />} />
-          <Route path="/premium" element={<PremiumPage />} />
-          <Route path="/emergency" element={<EmergencyPage />} />
-        </Routes>
+       <Routes>
+  <Route path="/" element={<HomePage />} />
+  <Route path="/about" element={<AboutPage />} />
+  <Route path="/terms" element={<TermsPage />} />
+  <Route path="/privacy" element={<PrivacyPage />} />
+  <Route path="/premium" element={<PremiumPage />} />
+  <Route path="/emergency" element={<EmergencyPage />} />
+  
+  {/* V1 TEST */}
+  <Route path="/test" element={<TestLanding />} />
+  <Route path="/test/situations" element={<TestSituations />} />
+  <Route path="/test/situation/:id" element={<TestSituation />} />
+</Routes>
       </LanguageProvider>
     </Router>
   );
