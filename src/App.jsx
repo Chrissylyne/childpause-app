@@ -40,14 +40,19 @@ export default function App() {
       <LanguageProvider>
         <PWAInstallPrompt />
         <Navigation />
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/terms" element={<TermsPage />} />
-          <Route path="/privacy" element={<PrivacyPage />} />
-          <Route path="/premium" element={<PremiumPage />} />
-          <Route path="/emergency" element={<EmergencyPage />} />
-        </Routes>
+ <Routes>
+  <Route path="/" element={<HomePage />} />
+  <Route path="/about" element={<AboutPage />} />
+  <Route path="/terms" element={<TermsPage />} />
+  <Route path="/privacy" element={<PrivacyPage />} />
+  <Route path="/premium" element={<PremiumPage />} />
+  <Route path="/emergency" element={<EmergencyPage />} />
+  
+  {/* V1 TEST ROUTES */}
+  <Route path="/test" element={<TestLanding />} />
+  <Route path="/test/situations" element={<TestSituations />} />
+  <Route path="/test/situation/:id" element={<TestSituation />} />
+</Routes>
       </LanguageProvider>
     </Router>
   );
