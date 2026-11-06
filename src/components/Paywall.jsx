@@ -1,41 +1,52 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { trackEvent } from '../utils/trackingService';
+import { useAuth } from '../contexts/AuthContext';
+import { getStripeLinks, withEmail } from '../lib/stripeLinks';
 
-const LINKS = {
-  monthly: 'https://buy.stripe.com/fZufZagqi8i1ebz0u47AI02',
-  annual: 'https://buy.stripe.com/5kQ7sEb5Y8i1c3r7Ww7AI03',
-};
-
+// Chaque langue est ecrite pour elle-meme, pas traduite de l'autre.
 const TEXTS = {
   fr: {
-    title: 'Tu viens d’utiliser 2 réponses ChildPause.',
-    subtitle: 'Il y en a davantage pour les moments difficiles du quotidien.',
-    badge: 'Le choix des parents',
-    annual: 'Annuel : 49 €/an',
-    annualNote: 'Économisez 40 %',
-    monthly: 'Mensuel : 6,99 €/mois',
-    reassurance: 'Pas de frais cachés. Annulable à tout moment.',
+    soft: {
+      title: 'Tu as déjà découvert deux situations.',
+      subtitle: 'Les autres moments difficiles du quotidien sont dans ChildPause Premium.',
+    },
+    locked: {
+      title: 'Cette situation fait partie de ChildPause Premium.',
+      subtitle: 'Premium débloque les situations les plus difficiles du quotidien.',
+    },
+    annual: '49 € par an. Économisez plus de 40 %.',
+    monthly: '6,99 € par mois',
+    reassurance: 'Pas de frais cachés. Résiliable à tout moment.',
     later: 'Pas maintenant',
-    surveyTitle: 'Qu’est-ce qui t’a fait hésiter ?',
+    alreadyMember: 'Déjà abonné ? Se connecter',
+    soon: "L'abonnement ouvre très bientôt.",
+    surveyTitle: "Qu'est-ce qui te retient ?",
     skip: 'Passer',
     reasons: [
       ['chatgpt', 'Je peux demander ça à ChatGPT'],
-      ['price', 'Trop cher pour maintenant'],
+      ['price', "C'est trop cher pour le moment"],
       ['not_convinced', 'Je ne suis pas encore convaincu(e)'],
       ['later', 'Je reviendrai plus tard'],
       ['other', 'Autre'],
     ],
   },
   de: {
-    title: 'Du hast gerade 2 ChildPause-Antworten genutzt.',
-    subtitle: 'Für die schwierigen Momente im Alltag gibt es noch mehr.',
-    badge: 'Die Wahl der Eltern',
-    annual: 'Jährlich: 49 €/Jahr',
-    annualNote: '40 % sparen',
-    monthly: 'Monatlich: 6,99 €/Monat',
+    soft: {
+      title: 'Zwei Situationen hast du dir schon angesehen.',
+      subtitle: 'Für alle weiteren schwierigen Momente gibt es ChildPause Premium.',
+    },
+    locked: {
+      title: 'Diese Situation gehört zu ChildPause Premium.',
+      subtitle: 'Premium schaltet die schwierigsten Momente im Alltag frei.',
+    },
+    annual: '49 € im Jahr. Du sparst über 40 %.',
+    monthly: '6,99 € im Monat',
     reassurance: 'Keine versteckten Kosten. Jederzeit kündbar.',
     later: 'Jetzt nicht',
-    surveyTitle: 'Was hat dich zögern lassen?',
+    alreadyMember: 'Schon Abonnent? Anmelden',
+    soon: 'Das Abonnement startet in Kürze.',
+    surveyTitle: 'Was hält dich gerade noch zurück?',
     skip: 'Überspringen',
     reasons: [
       ['chatgpt', 'Das kann ich auch ChatGPT fragen'],
@@ -74,16 +85,6 @@ const drawerStyle = {
 
 const titleStyle = { fontSize: '1.25rem', fontWeight: 700, margin: '0 0 0.5rem' };
 const subStyle = { margin: '0 0 1.25rem', color: '#6b4a3a', lineHeight: 1.45 };
-const badgeStyle = {
-  display: 'inline-block',
-  background: '#f3d9c9',
-  color: '#8a3a1a',
-  fontSize: '0.8rem',
-  fontWeight: 700,
-  padding: '0.2rem 0.6rem',
-  borderRadius: '999px',
-  marginBottom: '0.5rem',
-};
 const noteStyle = { textAlign: 'center', color: '#6b4a3a', fontSize: '0.9rem', margin: '0.25rem 0 1rem' };
 const ghostStyle = {
   display: 'block',
@@ -94,6 +95,8 @@ const ghostStyle = {
   fontSize: '0.95rem',
   cursor: 'pointer',
   padding: '0.5rem',
+  textAlign: 'center',
+  textDecoration: 'none',
 };
 
 const planStyle = (primary) => ({
@@ -128,26 +131,31 @@ const reasonStyle = {
   cursor: 'pointer',
 };
 
-export default function Paywall({ language = 'fr', onClose }) {
+export default function Paywall({ language = 'fr', source = 'soft', onClose }) {
   const lang = language === 'de' ? 'de' : 'fr';
   const t = TEXTS[lang];
+  const head = source === 'locked' ? t.locked : t.soft;
+  const { user } = useAuth();
+  const links = getStripeLinks();
+  const paymentsReady = Boolean(links.monthly && links.annual);
+  const email = user ? user.email : '';
   const [step, setStep] = useState('offer');
 
   useEffect(() => {
-    trackEvent('paywall_viewed', { language: lang });
+    trackEvent('paywall_viewed', { language: lang, source });
   }, []);
 
   const handleCta = (plan) => {
-    trackEvent('paywall_cta_clicked', { plan, language: lang });
+    trackEvent('paywall_cta_clicked', { plan, language: lang, source });
   };
 
   const handleDismiss = () => {
-    trackEvent('paywall_dismissed', { language: lang });
+    trackEvent('paywall_dismissed', { language: lang, source });
     setStep('survey');
   };
 
   const handleReason = (code) => {
-    trackEvent('abandon_reason', { reason: code, language: lang });
+    trackEvent('abandon_reason', { reason: code, language: lang, source });
     onClose();
   };
 
@@ -156,31 +164,41 @@ export default function Paywall({ language = 'fr', onClose }) {
       <div style={drawerStyle}>
         {step === 'offer' ? (
           <div>
-            <h2 style={titleStyle}>{t.title}</h2>
-            <p style={subStyle}>{t.subtitle}</p>
-            <div style={badgeStyle}>{t.badge}</div>
-            <a
-              href={LINKS.annual}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={planStyle(true)}
-              onClick={() => handleCta('annual')}
-            >
-              {t.annual} ({t.annualNote})
-            </a>
-            <a
-              href={LINKS.monthly}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={planStyle(false)}
-              onClick={() => handleCta('monthly')}
-            >
-              {t.monthly}
-            </a>
-            <p style={noteStyle}>{t.reassurance}</p>
+            <h2 style={titleStyle}>{head.title}</h2>
+            <p style={subStyle}>{head.subtitle}</p>
+
+            {paymentsReady ? (
+              <div>
+                <a
+                  href={withEmail(links.annual, email)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={planStyle(true)}
+                  onClick={() => handleCta('annual')}
+                >
+                  {t.annual}
+                </a>
+                <a
+                  href={withEmail(links.monthly, email)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={planStyle(false)}
+                  onClick={() => handleCta('monthly')}
+                >
+                  {t.monthly}
+                </a>
+                <p style={noteStyle}>{t.reassurance}</p>
+              </div>
+            ) : (
+              <p style={{ ...noteStyle, fontWeight: 600 }}>{t.soon}</p>
+            )}
+
             <button type="button" style={ghostStyle} onClick={handleDismiss}>
               {t.later}
             </button>
+            <Link to="/connexion" style={{ ...ghostStyle, fontSize: '0.9rem' }}>
+              {t.alreadyMember}
+            </Link>
           </div>
         ) : (
           <div>
