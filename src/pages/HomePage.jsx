@@ -34,7 +34,7 @@ const HomePage = () => {
         content: {
           dis: '« Ich sehe, dass dir das schwerfällt. Jetzt ist Schluss. »',
           fais: 'Den Bildschirm selbst ausschalten. Sofort eine Alternative anbieten (Snack, Spielplatz, Spiel).',
-          evite: 'Verhandlungen (« Okay, noch fünf Minuten »). Drohungen (« Wenn nicht, Strafe »).',
+          evite: 'Verhandlungen (« Okay, noch fünf Minuten »). Drohungen (« Wenn du ihn nicht ausmachst, gibt es Strafe »).',
           siContinue: '« Das ist hart. Ich mache das jetzt. Komm mit. »',
           objectif: 'Von Konfrontation zu konkreter Aktion in 30 Sekunden.',
           pourquoi: 'Das Kind testet Grenzen. Du setzt die Grenze klar, ohne zu diskutieren. Die Alternative lenkt die Aufmerksamkeit um.'
@@ -48,10 +48,10 @@ const HomePage = () => {
       free: true,
       fr: {
         title: 'IL/ELLE PIQUE UNE GROSSE CRISE',
-        subtitle: '« C\'est pas juste! Je te déteste! »',
+        subtitle: '« C\'est pas juste ! Je te déteste ! »',
         content: {
           dis: '« Tu es fâché, je comprends. Je suis là. »',
-          fais: 'Respirer (pour toi). Rester proche, physiquement calme. Pas de explication pendant la crise.',
+          fais: 'Respirer (pour toi). Rester proche, physiquement calme. Pas d\'explication pendant la crise.',
           evite: 'Crier, négocier, essayer de convaincre, répéter les raisons. Ça amplifie la crise.',
           siContinue: 'Rester à côté en silence. Main douce sur l\'épaule si l\'enfant accepte.',
           objectif: 'Passer de la tempête émotionnelle au calme progressif (5-10 min).',
@@ -78,10 +78,10 @@ const HomePage = () => {
       free: true,
       fr: {
         title: 'IL/ELLE REFUSE D\'ALLER AU LIT',
-        subtitle: '« Je ne suis pas fatigué! »',
+        subtitle: '« Je ne suis pas fatigué ! »',
         content: {
           dis: '« Je sais que tu n\'as pas l\'impression d\'être fatigué. C\'est l\'heure d\'aller au lit quand même. »',
-          fais: 'Routine claire (bain, histoire, lumière éteinte). Pas de nagociation, pas de « 5 minutes de plus ».',
+          fais: 'Routine claire (bain, histoire, lumière éteinte). Pas de négociation, pas de « 5 minutes de plus ».',
           evite: 'Briser la routine en cédant. Écrans après 18h. Caféine en fin d\'après-midi.',
           siContinue: '« Je comprends que c\'est dur. Demain on en reparle. Ce soir, c\'est dodo. » Fermeté bienveillante.',
           objectif: 'Établir une routine que l\'enfant attend, pas redoute.',
@@ -95,7 +95,7 @@ const HomePage = () => {
           dis: '« Ich weiß, du fühlst dich nicht müde. Trotzdem ist jetzt Schlafenszeit. »',
           fais: 'Klare Routine (Baden, Geschichte, Licht aus). Keine Verhandlung, keine « noch fünf Minuten ».',
           evite: 'Routine brechen, indem du nachgibst. Bildschirm nach 18 Uhr. Koffein am Nachmittag.',
-          siContinue: '« Ich verstehe, dass das hart ist. Morgen reden wir drüber. Heute Nacht ist Schlaf. » Klare, liebevolle Grenze.',
+          siContinue: '« Ich verstehe, dass das hart ist. Morgen reden wir drüber. Heute Abend ist Schlafenszeit. » Klare, liebevolle Grenze.',
           objectif: 'Eine Routine etablieren, auf die sich das Kind freut, nicht vor der es Angst hat.',
           pourquoi: 'Regelmäßige Routinen regulieren Cortisol. Das Kind kann sagen « ich bin nicht müde », aber sein Körper braucht den Schlaf.'
         }
@@ -108,13 +108,13 @@ const HomePage = () => {
       free: false,
       fr: {
         title: 'IL/ELLE REFUSE DE PARTIR (PARC, MAGASIN)',
-        subtitle: '« Non! Je veux rester! »',
+        subtitle: '« Non ! Je veux rester ! »',
         content: {
           dis: '« Je sais que c\'est difficile de partir. On part maintenant. On en reparlera demain. »',
           fais: 'Annoncer 5 min avant (« On part dans 5 min »). Proposer qu\'il aide (« Tu peux ranger les jouets? »).',
-          evite: 'L\'ultimatum dramatique. Le prix gagné en cédant (« OK, une minute de plus »).',
+          evite: 'L\'ultimatum dramatique. Céder pour avoir la paix (« OK, une minute de plus »).',
           siContinue: 'Le porter ou le prendre par la main. Actions, pas mots. Ton calme, pas punition.',
-          objectif: 'Transition sans crise. L\'enfant sait que les limites ne négocient pas.',
+          objectif: 'Transition sans crise. L\'enfant sait que les limites ne se négocient pas.',
           pourquoi: 'L\'anticipation réduit la frustration. Les actions claires (tu l\'aides) diminuent la résistance.'
         }
       },
@@ -123,8 +123,8 @@ const HomePage = () => {
         subtitle: '« Nein! Ich will noch bleiben! »',
         content: {
           dis: '« Ich sehe, dass du noch spielen möchtest. Wir müssen jetzt gehen. Das besprechen wir morgen. »',
-          fais: '5 Min vorher ankündigen (« Wir gehen in 5 Minuten »). Biete Hilfe an (« Kannst du deine Sachen tragen? »).',
-          evite: 'Dramatische Ultimaten. Mit Nachgeben verhandeln (« Okay, eine Minute noch »).',
+          fais: '5 Min vorher ankündigen (« Wir gehen in 5 Minuten »). Dem Kind eine kleine Aufgabe geben (« Kannst du deine Sachen tragen? »).',
+          evite: 'Dramatische Ultimaten. Nachgeben, um Ruhe zu haben (« Okay, eine Minute noch »).',
           siContinue: 'Tragen oder an der Hand nehmen. Handlung, nicht Worte. Ruhiger Ton, keine Strafe.',
           objectif: 'Transition ohne Krise. Das Kind weiß: Grenzen sind nicht verhandelbar.',
           pourquoi: 'Vorankündigung reduziert Frustration. Klare Handlungen (du hilfst) verringern Widerstand.'
@@ -156,7 +156,7 @@ const HomePage = () => {
           fais: 'Verhalten stoppen (Hand sanft fassen). Platz zwischen euch schaffen. Selbst ruhig bleiben.',
           evite: 'Zurückschlagen. Schreien « du bist böse ». Moralpredigt, während das Kind wütend ist.',
           siContinue: '« Entweder Ruhe, oder ich muss dir helfen, dich zu beruhigen (Zimmer). »',
-          objectif: 'Physisches Verhalten stoppen. Dem Kind beibringen, Wut zu benennen, statt zu zuhauen.',
+          objectif: 'Physisches Verhalten stoppen. Dem Kind beibringen, Wut zu benennen, statt zu hauen.',
           pourquoi: 'Das Kind schlägt, wenn Gefühle überfordern. Deine Ruhe zeigt ihm, wie es geht. Pause gibt Kontrolle zurück.'
         }
       },
@@ -184,10 +184,10 @@ const HomePage = () => {
         content: {
           dis: '« Ich sehe, dass das schwer ist. Wir machen das zusammen. Keine Sorge. »',
           fais: 'Klarer Tisch (kein Bildschirm). In kleine Schritte aufteilen. Die Anstrengung loben, nicht nur das Ergebnis.',
-          evite: 'Die Aufgaben machen. Strafen bei Fehlern. Lange Monologe « warum verstehst du das nicht ».',
-          siContinue: '« Wenn du weitermachst, kontaktiere ich den Lehrer. »',
-          objectif: 'Das Kind macht Hausaufgaben ohne Katastrophendenken. Es lernt: Versuchen ist besser als perfekt sein.',
-          pourquoi: 'Schulstart = Stress für alle. Klare Routine + liebevolle Präsenz reduziert Angst. Die Anstrengung zählt mehr als Perfektion.'
+          evite: 'Die Aufgaben für das Kind machen. Strafen bei Fehlern. Lange Monologe « warum verstehst du das nicht ».',
+          siContinue: '« Ich sehe, dass es heute schwer ist. Wir machen fünf Minuten Pause und fangen dann mit dem ersten kleinen Schritt wieder an. »',
+          objectif: 'Das Kind macht Hausaufgaben ohne Katastrophendenken. Es lernt: Versuchen zählt mehr als Perfektion.',
+          pourquoi: 'Der Schulstart ist für alle stressig. Eine klare Routine und liebevolle Präsenz verringern die Angst. Die Anstrengung zählt mehr als Perfektion.'
         }
       },
       image: '📚'
