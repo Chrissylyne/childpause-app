@@ -10,6 +10,7 @@ import TermsPage from './pages/TermsPage.jsx';
 import PrivacyPage from './pages/PrivacyPage.jsx';
 import PremiumPage from './pages/PremiumPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
+import LibraryPage from './pages/LibraryPage.jsx';
 import EmergencyPage from './pages/EmergencyPage.jsx';
 import TestLanding from './pages/TestLanding.jsx';
 import TestSituations from './pages/TestSituations.jsx';
@@ -58,6 +59,7 @@ export default function App() {
   <Route path="/privacy" element={<PrivacyPage />} />
   <Route path="/premium" element={<PremiumPage />} />
   <Route path="/emergency" element={<EmergencyPage />} />
+  <Route path="/bibliotheque" element={<LibraryPage />} />
   <Route path="/merci" element={<LoginPage variant="merci" />} />
   <Route path="/connexion" element={<LoginPage variant="connexion" />} />
   

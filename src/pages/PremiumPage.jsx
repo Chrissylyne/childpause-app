@@ -14,8 +14,9 @@ const TEXTS = {
       'Quand ton enfant ne veut pas quitter le parc',
       'Quand ton enfant frappe, mord ou donne des coups de pied',
       'Quand les devoirs tournent au conflit, chaque soir',
+      'Toute la bibliothèque : des dizaines de scripts supplémentaires, classés par thème',
     ],
-    free: 'Les situations gratuites (écrans, grosses crises, coucher) restent ouvertes à tous, sans inscription.',
+    free: 'Les trois situations gratuites (écrans, grosses crises, coucher) et une partie de la bibliothèque restent ouvertes à tous, sans inscription.',
     annual: 'Annuel : 49 € par an (économisez plus de 40 %)',
     monthly: 'Mensuel : 6,99 € par mois',
     reassurance: 'Pas de frais cachés. Résiliable à tout moment, en ligne.',
@@ -23,7 +24,7 @@ const TEXTS = {
     alreadyMember: 'Déjà abonné ? Se connecter',
     faqTitle: 'Questions fréquentes',
     faq: [
-      ['Puis-je tester avant ?', 'Oui. Trois situations sont gratuites, sans inscription.'],
+      ['Puis-je tester avant ?', 'Oui. Trois situations et une partie de la bibliothèque sont gratuites, sans inscription.'],
       [
         'Comment résilier ?',
         "En ligne : « Se connecter », puis « Gérer mon abonnement ». Ton accès reste ouvert jusqu'à la fin de la période déjà payée.",
@@ -38,8 +39,9 @@ const TEXTS = {
       'Wenn dein Kind den Spielplatz nicht verlassen will',
       'Wenn dein Kind haut, beißt oder tritt',
       'Wenn die Hausaufgaben jeden Abend im Streit enden',
+      'Die ganze Bibliothek: Dutzende weitere Skripte, nach Themen sortiert',
     ],
-    free: 'Die kostenlosen Situationen (Bildschirm, Wutanfall, Zubettgehen) sind für alle offen, ohne Anmeldung.',
+    free: 'Die drei kostenlosen Situationen (Bildschirm, Wutanfall, Zubettgehen) und ein Teil der Bibliothek sind für alle offen, ohne Anmeldung.',
     annual: 'Jährlich: 49 € im Jahr (du sparst über 40 %)',
     monthly: 'Monatlich: 6,99 € im Monat',
     reassurance: 'Keine versteckten Kosten. Jederzeit online kündbar.',
@@ -47,7 +49,7 @@ const TEXTS = {
     alreadyMember: 'Schon Abonnent? Anmelden',
     faqTitle: 'Häufige Fragen',
     faq: [
-      ['Kann ich vorher testen?', 'Ja. Drei Situationen sind kostenlos und ohne Anmeldung nutzbar.'],
+      ['Kann ich vorher testen?', 'Ja. Drei Situationen und ein Teil der Bibliothek sind kostenlos und ohne Anmeldung nutzbar.'],
       [
         'Wie kündige ich?',
         'Online: Unter „Anmelden“ und dann „Abo verwalten“. Dein Zugang bleibt bis zum Ende des bereits bezahlten Zeitraums offen.',

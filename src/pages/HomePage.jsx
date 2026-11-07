@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Paywall from '../components/Paywall';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -26,6 +27,8 @@ const TEXTS = {
     retry: 'Réessayer',
     contentMissing: "Cette situation n'a pas pu s'afficher. Réessaie dans un instant.",
     premium: 'Premium',
+    libraryTitle: 'Voir toute la bibliothèque',
+    librarySubtitle: 'Plus de situations, classées par thème.',
     back: 'Retour',
     next: 'Autre situation',
     sections: [
@@ -56,6 +59,8 @@ const TEXTS = {
     retry: 'Noch einmal versuchen',
     contentMissing: 'Diese Situation konnte nicht angezeigt werden. Bitte versuche es gleich noch einmal.',
     premium: 'Premium',
+    libraryTitle: 'Zur ganzen Bibliothek',
+    librarySubtitle: 'Weitere Situationen, nach Themen sortiert.',
     back: 'Zurück',
     next: 'Nächste Situation',
     sections: [
@@ -77,6 +82,7 @@ const HomePage = () => {
   const { language } = useLanguage();
   const t = TEXTS[language === 'de' ? 'de' : 'fr'];
   const lang = language === 'de' ? 'de' : 'fr';
+  const navigate = useNavigate();
   const { isPremium, loading: authLoading } = useAuth();
   const { items: situations, loading, error, reload } = useSituations(isPremium, !authLoading);
 
@@ -276,6 +282,28 @@ const HomePage = () => {
                 </button>
               ))}
             </div>
+          )}
+
+          {!loading && !error && (
+            <button
+              onClick={() => navigate('/bibliotheque')}
+              style={{
+                display: 'block',
+                width: '100%',
+                marginTop: '24px',
+                background: 'white',
+                border: '2px solid hsl(280, 70%, 55%)',
+                borderRadius: '12px',
+                padding: '18px 20px',
+                cursor: 'pointer',
+                textAlign: 'left',
+              }}
+            >
+              <div style={{ fontSize: '16px', fontWeight: 700, color: 'hsl(280, 70%, 45%)', marginBottom: '4px' }}>
+                📚 {t.libraryTitle}
+              </div>
+              <div style={{ fontSize: '14px', color: 'hsl(240, 20%, 40%)' }}>{t.librarySubtitle}</div>
+            </button>
           )}
         </div>
       </div>

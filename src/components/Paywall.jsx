@@ -13,7 +13,7 @@ const TEXTS = {
     },
     locked: {
       title: 'Cette situation fait partie de ChildPause Premium.',
-      subtitle: 'Premium débloque les situations les plus difficiles du quotidien.',
+      subtitle: 'Premium débloque les situations les plus difficiles du quotidien et toute la bibliothèque.',
     },
     annual: '49 € par an. Économisez plus de 40 %.',
     monthly: '6,99 € par mois',
@@ -38,7 +38,7 @@ const TEXTS = {
     },
     locked: {
       title: 'Diese Situation gehört zu ChildPause Premium.',
-      subtitle: 'Premium schaltet die schwierigsten Momente im Alltag frei.',
+      subtitle: 'Premium schaltet die schwierigsten Momente im Alltag und die ganze Bibliothek frei.',
     },
     annual: '49 € im Jahr. Du sparst über 40 %.',
     monthly: '6,99 € im Monat',
