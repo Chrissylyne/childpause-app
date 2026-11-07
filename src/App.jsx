@@ -1,4 +1,5 @@
 import PWAInstallPrompt from './components/PWAInstallPrompt';
+import CookieConsent from './components/CookieConsent.jsx';
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext.jsx';
@@ -8,6 +9,9 @@ import HomePage from './pages/HomePage.jsx';
 import AboutPage from './pages/AboutPage.jsx';
 import TermsPage from './pages/TermsPage.jsx';
 import PrivacyPage from './pages/PrivacyPage.jsx';
+import ImpressumPage from './pages/ImpressumPage.jsx';
+import ContactPage from './pages/ContactPage.jsx';
+import Footer from './components/Footer.jsx';
 import PremiumPage from './pages/PremiumPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import LibraryPage from './pages/LibraryPage.jsx';
@@ -51,12 +55,15 @@ export default function App() {
       <LanguageProvider>
         <AuthProvider>
         <PWAInstallPrompt />
+        <CookieConsent />
         <Navigation />
 <Routes>
   <Route path="/" element={<HomePage />} />
   <Route path="/about" element={<AboutPage />} />
   <Route path="/terms" element={<TermsPage />} />
   <Route path="/privacy" element={<PrivacyPage />} />
+  <Route path="/impressum" element={<ImpressumPage />} />
+  <Route path="/contact" element={<ContactPage />} />
   <Route path="/premium" element={<PremiumPage />} />
   <Route path="/emergency" element={<EmergencyPage />} />
   <Route path="/bibliotheque" element={<LibraryPage />} />
@@ -68,6 +75,7 @@ export default function App() {
   <Route path="/test/situations" element={<TestSituations />} />
   <Route path="/test/situation/:id" element={<TestSituation />} />
 </Routes>
+<Footer />
         </AuthProvider>
       </LanguageProvider>
     </Router>
