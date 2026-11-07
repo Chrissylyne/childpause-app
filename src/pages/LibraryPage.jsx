@@ -66,6 +66,65 @@ const backButton = {
 };
 const errorStyle = { color: 'hsl(0, 65%, 40%)', fontSize: '14px' };
 
+// Libelles lisibles des titres de situation (cles en minuscules, comme en base).
+// Plusieurs titres peuvent pointer vers le meme libelle : ils sont alors regroupes.
+// Un titre absent de la table s'affiche avec une majuscule, tel que dans la base.
+const TITLE_LABELS = {
+  // FR
+  'alimentation restrictive/picky eater': 'Alimentation restrictive / enfant sélectif',
+  'catastrophisme/peurs irrationnelles': 'Catastrophisme et peurs irrationnelles',
+  'crise de colère': 'Crise de colère',
+  'crise de colère variante': 'Crise de colère',
+  'écran avant dormir': 'Écran avant le coucher',
+  'écrans dépassés': "Temps d'écran dépassé",
+  'peurs scolaires/angoisse avant école': "Peurs scolaires et angoisse avant l'école",
+  'pleurs sans raison': 'Pleurs sans raison apparente',
+  'prise de poids/image corporelle': 'Prise de poids et image corporelle',
+  "refuse d'aller à l'école": "Refus d'aller à l'école",
+  "refuse d'aller au lit": "Refus d'aller au lit",
+  "refuse d'éteindre les écrans": "Refus d'éteindre les écrans",
+  'refuse de manger': 'Refus de manger',
+  'refuse de parler': 'Refus de parler',
+  'refuse de ranger': 'Refus de ranger',
+  "refuse de s'habiller": "Refus de s'habiller",
+  'refuse de se laver': 'Refus de se laver',
+  'sucreries/junk food constant': 'Sucreries et junk food en continu',
+  'youtube/tiktok addiction': 'Dépendance à YouTube et TikTok',
+
+  // DE
+  'gewichtszunahme/körperbild': 'Gewichtszunahme und Körperbild',
+  'katastrophales denken/irrationale ängste': 'Katastrophendenken und irrationale Ängste',
+  'regel wird mehrfach wiederholt': 'Regel wird mehrfach wiederholt',
+  'restriktive ernährung/wählerischer esser': 'Restriktive Ernährung und wählerisches Essen',
+  'schulängstlichkeit/angst vor schule': 'Angst vor der Schule',
+  'süßigkeiten/junk food konstant': 'Ständig Süßigkeiten und Junkfood',
+  'überwältigung nach der schule': 'Überforderung nach der Schule',
+  'weigert sich am tisch zu essen': 'Weigert sich, am Tisch zu essen',
+  'weigert sich anzuziehen': 'Weigert sich, sich anzuziehen',
+  'weigert sich aufzuräumen': 'Weigert sich, aufzuräumen',
+  'weigert sich beim haushalt zu helfen': 'Weigert sich, im Haushalt zu helfen',
+  'weigert sich im haushalt zu helfen': 'Weigert sich, im Haushalt zu helfen',
+  'weigert sich bildschirm auszuschalten': 'Weigert sich, den Bildschirm auszuschalten',
+  'weigert sich den tisch abzuräumen': 'Weigert sich, den Tisch abzuräumen',
+  'weigert sich tisch abzuräumen': 'Weigert sich, den Tisch abzuräumen',
+  'weigert sich für die schule fertig zu machen': 'Weigert sich, sich für die Schule fertig zu machen',
+  'weigert sich hausaufgaben zu machen': 'Weigert sich, Hausaufgaben zu machen',
+  'weigert sich in die schule zu gehen': 'Weigert sich, in die Schule zu gehen',
+  'weigert sich ins bett zu gehen': 'Weigert sich, ins Bett zu gehen',
+  'weigert sich zu essen': 'Weigert sich, zu essen',
+  'weigert sich zu reden wenn etwas nicht stimmt': 'Weigert sich, zu reden, wenn etwas nicht stimmt',
+  'weigert sich zu waschen': 'Weigert sich, sich zu waschen',
+  'wutanfall': 'Wutanfall',
+  'wutanfall variante': 'Wutanfall',
+  'youtube/tiktok sucht': 'YouTube- und TikTok-Sucht',
+};
+
+const formatTitle = (title) => {
+  if (!title) return '';
+  const clean = title.trim();
+  return TITLE_LABELS[clean.toLowerCase()] || clean.charAt(0).toUpperCase() + clean.slice(1);
+};
+
 export default function LibraryPage() {
   const { language } = useLanguage();
   const lang = language === 'de' ? 'de' : 'fr';
@@ -120,13 +179,21 @@ export default function LibraryPage() {
     loadScripts(category);
   };
 
-  // Regroupe les scripts d'une meme situation, avec leurs tranches d'age.
+  // Regroupe les scripts par libelle de situation (les variantes d'un meme titre
+  // sont fusionnees), puis trie chaque groupe par tranche d'age.
   const groups = [];
+  const byLabel = new Map();
   scripts.forEach((script) => {
-    const last = groups[groups.length - 1];
-    if (last && last.title === script.title) last.items.push(script);
-    else groups.push({ title: script.title, items: [script] });
+    const label = formatTitle(script.title);
+    let group = byLabel.get(label);
+    if (!group) {
+      group = { title: label, items: [] };
+      byLabel.set(label, group);
+      groups.push(group);
+    }
+    group.items.push(script);
   });
+  groups.forEach((group) => group.items.sort((a, b) => a.age_min - b.age_min));
 
   const hiddenInCategory = selected && !isPremium ? selected.premium_count : 0;
 
