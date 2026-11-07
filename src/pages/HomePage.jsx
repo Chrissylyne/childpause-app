@@ -1,545 +1,380 @@
-import React, { useEffect, useState } from 'react';
-import { supabase } from '../supabaseClient';
+import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Paywall from '../components/Paywall';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
+import { useSituations } from '../hooks/useSituations';
+import { TRACKING_EVENTS, trackEvent } from '../utils/trackingService';
 
-export default function HomePage() {
-  const { language } = useLanguage();
-  const [categories, setCategories] = useState([]);
-  const [allScripts, setAllScripts] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [userEmail, setUserEmail] = useState(null);
-  const [isPremium, setIsPremium] = useState(false);
-
-  // Fonction scroll vers les catégories
-  const handleCrisisClick = () => {
-    const element = document.getElementById('categories-section');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  useEffect(() => {
-    fetchCategoriesAndScripts();
-    checkUserPremium();
-  }, [language]);
-
-  // Charger catégories ET TOUS les scripts en une seule requête
-  const fetchCategoriesAndScripts = async () => {
-    setLoading(true);
-    console.log('🔄 Fetching categories pour langue:', language);
-    
-    // Charger les catégories
-    const { data: categoriesData, error: catError } = await supabase
-      .from('categories')
-      .select('*')
-      .eq('language', language)
-      .order('created_at', { ascending: true });
-
-    if (catError) {
-      console.error('❌ Erreur chargement catégories:', catError);
-    } else {
-      console.log('✓ Catégories chargées:', categoriesData);
-      setCategories(categoriesData || []);
-      if (categoriesData && categoriesData.length > 0) {
-        setSelectedCategory(categoriesData[0].id);
-      }
-    }
-
-    // Charger TOUS les scripts (pour les comptages + affichage)
-    console.log('🔄 Fetching ALL scripts pour langue:', language);
-    const { data: scriptsData, error: scriptsError } = await supabase
-      .from('scripts')
-      .select('*')
-      .eq('langue', language)
-      .order('created_at', { ascending: true });
-
-    if (scriptsError) {
-      console.error('❌ Erreur chargement scripts:', scriptsError);
-    } else {
-      console.log('✓ TOUS les scripts chargés:', scriptsData?.length, 'scripts');
-      setAllScripts(scriptsData || []);
-    }
-
-    setLoading(false);
-  };
-
-  const checkUserPremium = async () => {
-    const email = localStorage.getItem('userEmail');
-    if (email) {
-      setUserEmail(email);
-      const { data } = await supabase
-        .from('users')
-        .select('is_premium')
-        .eq('email', email)
-        .single();
-      if (data) {
-        setIsPremium(data.is_premium);
-      }
-    }
-  };
-
-  const handleCategoryClick = (categoryId) => {
-    setSelectedCategory(categoryId);
-  };
-
-  const getScriptsForCategory = (categoryId) => {
-    return allScripts
-      .filter(s => s.category_id === categoryId)
-      .sort((a, b) => {
-        // Scripts gratuits (premium=FALSE) EN PREMIER
-        if (a.premium === false && b.premium === true) return -1;
-        if (a.premium === true && b.premium === false) return 1;
-        // Sinon, ordre de création
-        return new Date(a.created_at) - new Date(b.created_at);
-      });
-  };
-
-  const canAccessScript = (script) => {
-    if (!script.premium) return true;
-    return isPremium;
-  };
-
-  const handleSubscribe = () => {
-    window.location.href = '/premium';
-  };
-
-  // Scripts affichés actuellement
-  const displayedScripts = selectedCategory ? getScriptsForCategory(selectedCategory) : [];
-
-  // Témoignages des mamans
-  const testimonials = {
-    fr: [
-      {
-        text: "Quand mon fils pique une crise au supermarché, j'avais des palpitations. Maintenant avec ChildPause, j'ai les mots tout prêts. Ça change vraiment.",
-        author: "Luisa, maman de 2 enfants"
-      },
-      {
-        text: "Je pensais que j'étais la seule à me sentir bloquée dans ces moments difficiles. Ces scripts m'ont sauvé — j'y vois plus clair et mon enfant aussi.",
-        author: "Sophie, maman de 3 enfants"
-      }
+// Chaque langue est ecrite pour elle-meme, pas traduite de l'autre.
+const TEXTS = {
+  fr: {
+    landingTitle: "Qu'est-ce que je lui dis, là, maintenant ?",
+    landingSubtitle:
+      'Pour les moments où on ne trouve plus ses mots. Choisis ta situation et trouve une première phrase simple à lui dire.',
+    landingButton: 'Choisir ma situation',
+    landingNote: 'Gratuit pour commencer. Sans inscription.',
+    cards: [
+      { label: 'Ce que tu peux dire', desc: 'Une phrase simple, naturelle, que tu peux dire tout de suite.' },
+      { label: 'Ce que tu peux faire', desc: 'Le geste qui accompagne la parole.' },
+      { label: 'À éviter', desc: 'Les réactions qui compliquent souvent les choses.' },
     ],
-    de: [
-      {
-        text: "Mika raubte mir echt den Nerv – aber mit ChildPause finde ich in der Hitze des Moments ruhiger die richtigen Worte. Es hilft enorm.",
-        author: "Luisa, Mutter von 2 Kindern"
-      },
-      {
-        text: "Ich dachte, ich bin alleine mit diesen Herausforderungen. Diese App hat mir gezeigt, dass ich gar nicht so hilflos bin. Eine echte Erleichterung.",
-        author: "Anna, Mutter von 3 Kindern"
-      }
-    ]
+    landingFooter: 'Pas besoin de lire 50 articles. Choisis la situation et la réponse vient.',
+    listTitle: 'Quelle situation ?',
+    listSubtitle: 'Trouve ta situation et la réponse arrive.',
+    loading: 'Chargement…',
+    loadError: 'Les situations ne se sont pas chargées. Vérifie ta connexion et réessaie.',
+    retry: 'Réessayer',
+    contentMissing: "Cette situation n'a pas pu s'afficher. Réessaie dans un instant.",
+    premium: 'Premium',
+    libraryTitle: 'Voir toute la bibliothèque',
+    librarySubtitle: 'Plus de situations, classées par thème.',
+    back: 'Retour',
+    next: 'Autre situation',
+    sections: [
+      { label: '🗣️ Ce que tu peux dire', key: 'dis' },
+      { label: '👉 Ce que tu peux faire', key: 'fais' },
+      { label: '🚫 À éviter', key: 'evite' },
+      { label: '🔥 Si ça continue', key: 'siContinue' },
+      { label: "💡 L'idée", key: 'objectif' },
+      { label: '💭 Pourquoi ça marche', key: 'pourquoi' },
+    ],
+  },
+  de: {
+    landingTitle: 'Was soll ich jetzt sagen?',
+    landingSubtitle:
+      'Dein Kind schreit, macht nicht mit oder weint, und dir fehlen die Worte? Such dir deine Situation aus und finde einen Satz, mit dem du anfangen kannst.',
+    landingButton: 'Situation auswählen',
+    landingNote: 'Zum Start kostenlos. Ohne Anmeldung.',
+    cards: [
+      { label: 'Das kannst du sagen', desc: 'Ein einfacher Satz, den du sofort sagen kannst.' },
+      { label: 'So gehst du vor', desc: 'Was du dazu tun kannst.' },
+      { label: 'Lieber nicht', desc: 'Reaktionen, die es oft schwerer machen.' },
+    ],
+    landingFooter: 'Keine langen Artikel nötig. Situation wählen, Antwort bekommen. Fertig.',
+    listTitle: 'Um welche Situation geht es?',
+    listSubtitle: 'Wähle deine Situation. Die Antwort folgt sofort.',
+    loading: 'Wird geladen …',
+    loadError: 'Die Situationen konnten nicht geladen werden. Prüfe deine Verbindung und versuche es noch einmal.',
+    retry: 'Noch einmal versuchen',
+    contentMissing: 'Diese Situation konnte nicht angezeigt werden. Bitte versuche es gleich noch einmal.',
+    premium: 'Premium',
+    libraryTitle: 'Zur ganzen Bibliothek',
+    librarySubtitle: 'Weitere Situationen, nach Themen sortiert.',
+    back: 'Zurück',
+    next: 'Nächste Situation',
+    sections: [
+      { label: '🗣️ Das kannst du sagen', key: 'dis' },
+      { label: '👉 So gehst du vor', key: 'fais' },
+      { label: '🚫 Lieber nicht', key: 'evite' },
+      { label: '🔥 Wenn es weitergeht', key: 'siContinue' },
+      { label: '💡 Worum es geht', key: 'objectif' },
+      { label: '💭 Warum das hilft', key: 'pourquoi' },
+    ],
+  },
+};
+
+const pageFont = '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+const purple = 'hsl(280, 70%, 55%)';
+const purpleDark = 'hsl(280, 70%, 48%)';
+
+const HomePage = () => {
+  const { language } = useLanguage();
+  const t = TEXTS[language === 'de' ? 'de' : 'fr'];
+  const lang = language === 'de' ? 'de' : 'fr';
+  const navigate = useNavigate();
+  const { isPremium, loading: authLoading } = useAuth();
+  const { items: situations, loading, error, reload } = useSituations(isPremium, !authLoading);
+
+  const [currentScreen, setCurrentScreen] = useState('landing');
+  const [selectedSituation, setSelectedSituation] = useState(null);
+  const [paywallSource, setPaywallSource] = useState('soft');
+  const [notice, setNotice] = useState('');
+  const [viewedSituationIds, setViewedSituationIds] = useState(new Set());
+  const paywallTimer = useRef(null);
+
+  const clearPaywallTimer = () => {
+    if (paywallTimer.current) {
+      clearTimeout(paywallTimer.current);
+      paywallTimer.current = null;
+    }
   };
 
-  const currentTestimonials = testimonials[language] || testimonials.fr;
+  useEffect(() => clearPaywallTimer, []);
 
-  return (
-    <div style={{ minHeight: '100vh', backgroundColor: 'hsl(var(--background))' }}>
-      
-      {/* ===== SECTION HÉROS - URGENCE ===== */}
-      <section style={{
-        padding: '2rem 1rem',
-        textAlign: 'center',
-        maxWidth: '800px',
-        margin: '0 auto',
-        paddingTop: '3rem',
-        paddingBottom: '2rem'
+  const handleSituationClick = (situation) => {
+    setNotice('');
+    trackEvent(TRACKING_EVENTS.SITUATION_SELECTED, { situation: situation.id, language: lang });
+
+    // Situation Premium sans abonnement : le contenu n'est meme pas envoye, on montre l'offre.
+    if (!situation.free && !isPremium) {
+      setPaywallSource('locked');
+      setCurrentScreen('paywall');
+      return;
+    }
+
+    if (!situation[lang].content) {
+      setNotice(t.contentMissing);
+      return;
+    }
+
+    setSelectedSituation(situation);
+    setCurrentScreen('intervention');
+    trackEvent(TRACKING_EVENTS.INTERVENTION_VIEWED, { situation: situation.id, language: lang });
+
+    if (!viewedSituationIds.has(situation.id)) {
+      const updated = new Set(viewedSituationIds);
+      updated.add(situation.id);
+      setViewedSituationIds(updated);
+
+      if (updated.size >= 2 && !isPremium) {
+        clearPaywallTimer();
+        paywallTimer.current = setTimeout(() => {
+          setPaywallSource('soft');
+          setCurrentScreen((previous) => (previous === 'intervention' ? 'paywall' : previous));
+        }, 3000);
+      }
+    }
+  };
+
+  const goToList = () => {
+    clearPaywallTimer();
+    setSelectedSituation(null);
+    setCurrentScreen('situations');
+  };
+
+  const handlePaywallClosed = () => {
+    setCurrentScreen('situations');
+  };
+
+  if (currentScreen === 'landing') {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, hsl(240, 20%, 95%) 0%, hsl(260, 15%, 90%) 100%)',
+        padding: '20px',
+        fontFamily: pageFont,
       }}>
-        
-        {/* Titre principal */}
-        <h1 style={{
-          fontSize: 'clamp(1.5rem, 5vw, 2.5rem)',
-          fontWeight: 'bold',
-          marginBottom: '1rem',
-          color: 'hsl(var(--foreground))',
-          lineHeight: '1.2'
-        }}>
-          {language === 'fr'
-            ? 'Mon enfant est en crise maintenant'
-            : 'Mein Kind ist gerade in einer Krise'
-          }
-        </h1>
+        <div style={{ maxWidth: '600px', margin: '0 auto', paddingTop: '40px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+            <h1 style={{ fontSize: '28px', fontWeight: '700', color: 'hsl(240, 30%, 20%)', margin: '0 0 12px 0', lineHeight: '1.2' }}>
+              {t.landingTitle}
+            </h1>
+            <p style={{ fontSize: '15px', color: 'hsl(240, 20%, 40%)', margin: '0', lineHeight: '1.5' }}>
+              {t.landingSubtitle}
+            </p>
+          </div>
 
-        {/* Sous-titre émotionnel */}
-        <p style={{
-          fontSize: '1.1rem',
-          marginBottom: '2rem',
-          color: 'hsl(var(--foreground) / 0.8)',
-          lineHeight: '1.6'
-        }}>
-          {language === 'fr'
-            ? 'Tu cherches les bons mots. Les voici.'
-            : 'Du suchst nach den richtigen Worten. Hier sind sie.'
-          }
-        </p>
+          <button
+            onClick={() => {
+              trackEvent(TRACKING_EVENTS.LANDING_CTA_CLICKED, { language: lang });
+              setCurrentScreen('situations');
+            }}
+            style={{
+              width: '100%',
+              padding: '16px',
+              fontSize: '16px',
+              fontWeight: '600',
+              background: purple,
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              marginBottom: '12px',
+              transition: 'background 0.2s',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = purpleDark; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = purple; }}
+          >
+            {t.landingButton}
+          </button>
+          <p style={{ textAlign: 'center', fontSize: '13px', color: 'hsl(240, 20%, 40%)', margin: '0 0 32px 0' }}>
+            {t.landingNote}
+          </p>
 
-        {/* BOUTON CTA PRINCIPAL - AVEC onClick FONCTIONNEL */}
-        <button
-          onClick={handleCrisisClick}
-          style={{
-            padding: '1rem 2rem',
-            backgroundColor: 'hsl(var(--primary))',
-            color: 'white',
-            border: 'none',
-            borderRadius: '0.5rem',
-            fontSize: '1.1rem',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-            width: '100%',
-            maxWidth: '400px',
-            marginBottom: '1rem'
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.backgroundColor = 'hsl(var(--primary) / 0.9)';
-            e.target.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)';
-            e.target.style.transform = 'scale(1.02)';
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.backgroundColor = 'hsl(var(--primary))';
-            e.target.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-            e.target.style.transform = 'scale(1)';
-          }}
-        >
-          {language === 'fr'
-            ? 'Trouver une solution maintenant →'
-            : 'Jetzt eine Lösung finden →'
-          }
-        </button>
-
-        {/* Phrase de confiance */}
-        <p style={{
-          fontSize: '0.9rem',
-          color: 'hsl(var(--foreground) / 0.6)',
-          marginTop: '1rem'
-        }}>
-          {language === 'fr'
-            ? '5 scripts gratuits par catégorie. Inspiré par la parentalité positive et la communication émotionnelle.'
-            : '5 Skripte kostenlos pro Kategorie. Inspiriert von positiver Erziehung und emotionaler Kommunikation.'
-          }
-        </p>
-      </section>
-
-      {/* ===== SECTION CATÉGORIES - AVEC ID POUR SCROLL ===== */}
-      <section
-        id="categories-section"
-        style={{
-          padding: '2rem 1rem',
-          backgroundColor: 'hsl(var(--card))',
-          borderTop: '1px solid hsl(var(--border))',
-          marginTop: '2rem'
-        }}
-      >
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          
-          {/* Titre catégories */}
-          <h2 style={{
-            fontSize: '1.8rem',
-            marginBottom: '1.5rem',
-            color: 'hsl(var(--foreground))',
-            textAlign: 'center',
-            fontWeight: 'bold'
-          }}>
-            {language === 'fr' ? 'Choisir une situation' : 'Wähle eine Situation'}
-          </h2>
-
-          {/* État de chargement ou debug */}
-          {loading ? (
-            <div style={{ textAlign: 'center', color: 'hsl(var(--foreground) / 0.6))' }}>
-              {language === 'fr' ? 'Chargement...' : 'Wird geladen...'}
-            </div>
-          ) : categories.length === 0 ? (
-            <div style={{ 
-              textAlign: 'center', 
-              padding: '2rem',
-              color: 'hsl(var(--foreground) / 0.6))',
-              backgroundColor: 'hsl(var(--background))',
-              borderRadius: '0.5rem'
-            }}>
-              <p>{language === 'fr' ? 'Aucune catégorie trouvée' : 'Keine Kategorien gefunden'}</p>
-            </div>
-          ) : (
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: '1.5rem',
-              marginBottom: '2rem'
-            }}>
-              {categories.map((cat) => {
-                const scriptCount = getScriptsForCategory(cat.id).length;
-                return (
-                  <div
-                    key={cat.id}
-                    style={{
-                      padding: '2rem 1.5rem',
-                      border: `2px solid ${selectedCategory === cat.id ? 'hsl(var(--primary))' : 'hsl(var(--border))'}`,
-                      borderRadius: '0.5rem',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s ease',
-                      backgroundColor: selectedCategory === cat.id ? 'hsl(var(--primary) / 0.1)' : 'hsl(var(--background))',
-                      boxShadow: selectedCategory === cat.id ? '0 4px 12px hsl(var(--primary) / 0.2)' : 'none',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'space-between',
-                      minHeight: '140px'
-                    }}
-                    onClick={() => handleCategoryClick(cat.id)}
-                    onMouseEnter={(e) => {
-                      if (selectedCategory !== cat.id) {
-                        e.currentTarget.style.borderColor = 'hsl(var(--primary) / 0.5)';
-                        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (selectedCategory !== cat.id) {
-                        e.currentTarget.style.borderColor = 'hsl(var(--border))';
-                        e.currentTarget.style.boxShadow = 'none';
-                      }
-                    }}
-                  >
-                    <h3 style={{
-                      margin: '0 0 1rem 0',
-                      color: 'hsl(var(--foreground))',
-                      fontSize: '1.2rem',
-                      fontWeight: 'bold',
-                      lineHeight: '1.4'
-                    }}>
-                      {cat.name}
-                    </h3>
-                    <p style={{
-                      margin: '0',
-                      fontSize: '0.9rem',
-                      color: 'hsl(var(--foreground) / 0.7)',
-                      fontWeight: '600'
-                    }}>
-                      {scriptCount} {language === 'fr' ? 'solutions' : 'Lösungen'}
-                    </p>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* ===== SECTION SCRIPTS ===== */}
-      {selectedCategory && (
-        <section style={{
-          padding: '2rem 1rem',
-          maxWidth: '1200px',
-          margin: '0 auto'
-        }}>
-          
-          {/* Titre scripts */}
-          <h2 style={{
-            fontSize: '1.5rem',
-            marginBottom: '1.5rem',
-            color: 'hsl(var(--foreground))',
-            fontWeight: 'bold'
-          }}>
-            {language === 'fr' ? 'Solutions disponibles' : 'Verfügbare Lösungen'}
-          </h2>
-
-          {/* Liste des scripts */}
-          {displayedScripts.length === 0 ? (
-            <div style={{
-              textAlign: 'center',
-              padding: '2rem',
-              color: 'hsl(var(--foreground) / 0.6))'
-            }}>
-              {language === 'fr' ? 'Aucun script trouvé' : 'Keine Skripte gefunden'}
-            </div>
-          ) : (
-            <div style={{ display: 'grid', gap: '1rem' }}>
-              {displayedScripts.map((script, index) => {
-                const isFree = index < 5;
-                const isAccessible = canAccessScript(script);
-
-                return (
-                  <div
-                    key={script.id}
-                    style={{
-                      padding: '1.5rem',
-                      border: `1px solid hsl(var(--border))`,
-                      borderRadius: '0.5rem',
-                      backgroundColor: 'hsl(var(--card))',
-                      position: 'relative',
-                      opacity: isAccessible ? 1 : 0.6
-                    }}
-                  >
-                    {/* Badge Premium ou Gratuit */}
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'flex-start',
-                      marginBottom: '0.5rem'
-                    }}>
-                      <h3 style={{
-                        margin: 0,
-                        color: 'hsl(var(--foreground))',
-                        fontSize: '1.1rem',
-                        fontWeight: 'bold'
-                      }}>
-                        {script.title}
-                      </h3>
-                      <span style={{
-                        padding: '0.25rem 0.75rem',
-                        borderRadius: '0.25rem',
-                        fontSize: '0.75rem',
-                        fontWeight: 'bold',
-                        backgroundColor: isFree ? 'hsl(120, 100%, 85%)' : 'hsl(var(--primary) / 0.2)',
-                        color: isFree ? 'hsl(120, 100%, 25%)' : 'hsl(var(--primary))',
-                        whiteSpace: 'nowrap'
-                      }}>
-                        {isFree ? (language === 'fr' ? '✓ Gratuit' : '✓ Kostenlos') : '🔒 Premium'}
-                      </span>
-                    </div>
-
-                    {/* Contenu du script */}
-                    {isAccessible ? (
-                      <p style={{
-                        margin: '0.5rem 0',
-                        color: 'hsl(var(--foreground))',
-                        lineHeight: '1.6',
-                        fontSize: '0.95rem'
-                      }}>
-                        {script.content}
-                      </p>
-                    ) : (
-                      <div style={{
-                        padding: '1rem',
-                        backgroundColor: 'hsl(var(--primary) / 0.1)',
-                        borderRadius: '0.4rem',
-                        textAlign: 'center'
-                      }}>
-                        <p style={{
-                          margin: '0.5rem 0',
-                          color: 'hsl(var(--primary))',
-                          fontWeight: 'bold'
-                        }}>
-                          {language === 'fr'
-                            ? 'Ce script est réservé aux membres premium'
-                            : 'Dieses Skript ist nur für Premium-Mitglieder verfügbar'
-                          }
-                        </p>
-                        <button
-                          onClick={handleSubscribe}
-                          style={{
-                            marginTop: '0.5rem',
-                            padding: '0.5rem 1rem',
-                            backgroundColor: 'hsl(var(--primary))',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '0.4rem',
-                            cursor: 'pointer',
-                            fontWeight: 'bold',
-                            fontSize: '0.9rem',
-                            transition: 'background-color 0.3s'
-                          }}
-                          onMouseEnter={(e) => e.target.style.backgroundColor = 'hsl(var(--primary) / 0.9)'}
-                          onMouseLeave={(e) => e.target.style.backgroundColor = 'hsl(var(--primary))'}
-                        >
-                          {language === 'fr' ? "S'abonner" : 'Abonnieren'}
-                        </button>
-                      </div>
-                    )}
-
-                    {/* Infos supplémentaires */}
-                    {script.age_min && script.age_max && (
-                      <p style={{
-                        marginTop: '0.75rem',
-                        fontSize: '0.85rem',
-                        color: 'hsl(var(--foreground) / 0.6))',
-                        margin: '0.75rem 0 0 0'
-                      }}>
-                        {language === 'fr' ? 'Âge:' : 'Alter:'} {script.age_min}-{script.age_max} {language === 'fr' ? 'ans' : 'Jahre'}
-                      </p>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </section>
-      )}
-
-      {/* ===== SECTION TÉMOIGNAGES ===== */}
-      <section style={{
-        padding: '3rem 1rem',
-        backgroundColor: 'hsl(168, 100%, 97%)',
-        marginTop: '3rem',
-        borderTop: '1px solid hsl(var(--border))',
-        borderBottom: '1px solid hsl(var(--border))'
-      }}>
-        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-          <h2 style={{
-            fontSize: '1.8rem',
-            marginBottom: '2rem',
-            color: 'hsl(var(--foreground))',
-            textAlign: 'center',
-            fontWeight: 'bold'
-          }}>
-            {language === 'fr' ? 'Ce que disent les mamans' : 'Das sagen die Mütter'}
-          </h2>
-
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: '2rem'
-          }}>
-            {currentTestimonials.map((testimonial, index) => (
-              <div
-                key={index}
-                style={{
-                  padding: '2rem',
-                  backgroundColor: 'hsl(16, 80%, 90%)',
-                  borderRadius: '0.5rem',
-                  borderLeft: '4px solid hsl(var(--primary))',
-                  textAlign: 'center'
-                }}
-              >
-                <p style={{
-                  fontSize: '1rem',
-                  color: 'hsl(var(--foreground))',
-                  fontStyle: 'italic',
-                  lineHeight: '1.8',
-                  margin: '0 0 1rem 0'
-                }}>
-                  "{testimonial.text}"
-                </p>
-                <p style={{
-                  fontSize: '0.9rem',
-                  color: 'hsl(var(--foreground) / 0.7)',
-                  fontWeight: 'bold',
-                  margin: '0'
-                }}>
-                  — {testimonial.author}
-                </p>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
+            {t.cards.map((item) => (
+              <div key={item.label} style={{ background: 'white', padding: '16px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                <div style={{ fontSize: '14px', fontWeight: '600', color: purple, marginBottom: '4px' }}>{item.label}</div>
+                <div style={{ fontSize: '13px', color: 'hsl(240, 20%, 40%)', lineHeight: '1.4' }}>{item.desc}</div>
               </div>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* ===== FOOTER CONFIANCE ===== */}
-      <section style={{
-        padding: '2rem 1rem',
-        textAlign: 'center',
-        borderTop: '1px solid hsl(var(--border))',
-        marginTop: '3rem',
-        color: 'hsl(var(--foreground) / 0.6))',
-        fontSize: '0.9rem'
-      }}>
-        <p>
-          {language === 'fr'
-            ? ' Créée par une mère. Pour tous ceux qui font de leur mieux.'
-            : ' Erstellt von einer Mutter. Für alle, die ihr Bestes geben.'
-            ? '✨ Créée par une mère. Pour tous ceux qui font de leur mieux.'
-            : '✨ Erstellt von einer Mutter. Für alle, die ihr Bestes geben.'
-          }
-        </p>
-      </section>
-    </div>
-  );
-}
+          <div style={{ marginTop: '32px', textAlign: 'center', fontSize: '13px', color: 'hsl(240, 20%, 50%)', lineHeight: '1.5' }}>
+            {t.landingFooter}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (currentScreen === 'situations') {
+    return (
+      <div style={{ minHeight: '100vh', background: 'hsl(240, 20%, 97%)', padding: '20px', fontFamily: pageFont }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+          <div style={{ marginBottom: '32px' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: '700', color: 'hsl(240, 30%, 20%)', margin: '0 0 8px 0' }}>
+              {t.listTitle}
+            </h2>
+            <p style={{ fontSize: '14px', color: 'hsl(240, 20%, 40%)', margin: '0' }}>{t.listSubtitle}</p>
+          </div>
+
+          {notice && <p role="alert" style={{ color: 'hsl(0, 65%, 40%)', fontSize: '14px' }}>{notice}</p>}
+
+          {loading && <p style={{ color: 'hsl(240, 20%, 40%)' }}>{t.loading}</p>}
+
+          {!loading && error && (
+            <div>
+              <p role="alert" style={{ color: 'hsl(0, 65%, 40%)', fontSize: '14px' }}>{t.loadError}</p>
+              <button
+                onClick={reload}
+                style={{ padding: '12px 16px', borderRadius: '8px', border: 'none', background: purple, color: 'white', fontWeight: 600, cursor: 'pointer' }}
+              >
+                {t.retry}
+              </button>
+            </div>
+          )}
+
+          {!loading && !error && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+              {situations.map((situation) => (
+                <button
+                  key={situation.id}
+                  onClick={() => handleSituationClick(situation)}
+                  style={{
+                    background: 'white',
+                    border: 'none',
+                    borderRadius: '12px',
+                    padding: '20px',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                    transition: 'all 0.2s',
+                    textAlign: 'left',
+                    transform: 'translateY(0)',
+                    textDecoration: 'none',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    justifyContent: 'flex-start',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-6px)';
+                    e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.12)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
+                  }}
+                >
+                  <div style={{ fontSize: '32px', lineHeight: '40px', height: '40px', marginBottom: '12px' }}>{situation.emoji}</div>
+                  <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'hsl(240, 30%, 20%)', margin: '0 0 8px 0', lineHeight: '1.2' }}>
+                    {situation[lang].title}
+                  </h3>
+                  <p style={{ fontSize: '14px', color: 'hsl(240, 20%, 50%)', margin: '0', lineHeight: '1.3' }}>
+                    {situation[lang].subtitle}
+                  </p>
+                  {!situation.free && !isPremium && (
+                    <div style={{ marginTop: '12px', fontSize: '12px', color: purple, fontWeight: '600' }}>
+                      🔒 {t.premium}
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {!loading && !error && (
+            <button
+              onClick={() => navigate('/bibliotheque')}
+              style={{
+                display: 'block',
+                width: '100%',
+                marginTop: '24px',
+                background: 'white',
+                border: '2px solid hsl(280, 70%, 55%)',
+                borderRadius: '12px',
+                padding: '18px 20px',
+                cursor: 'pointer',
+                textAlign: 'left',
+              }}
+            >
+              <div style={{ fontSize: '16px', fontWeight: 700, color: 'hsl(280, 70%, 45%)', marginBottom: '4px' }}>
+                📚 {t.libraryTitle}
+              </div>
+              <div style={{ fontSize: '14px', color: 'hsl(240, 20%, 40%)' }}>{t.librarySubtitle}</div>
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (currentScreen === 'intervention' && selectedSituation) {
+    const content = selectedSituation[lang].content;
+    return (
+      <div style={{ minHeight: '100vh', background: 'hsl(240, 20%, 97%)', padding: '20px', fontFamily: pageFont }}>
+        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+          <button
+            onClick={goToList}
+            style={{
+              background: 'white',
+              border: 'none',
+              padding: '12px 16px',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              color: 'hsl(240, 30%, 20%)',
+              marginBottom: '24px',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+            }}
+          >
+            ← {t.back}
+          </button>
+
+          <h2 style={{ fontSize: '20px', fontWeight: '700', color: 'hsl(240, 30%, 20%)', margin: '0 0 8px 0', lineHeight: '1.2' }}>
+            {selectedSituation[lang].title}
+          </h2>
+          <p style={{ fontSize: '14px', color: 'hsl(240, 20%, 50%)', margin: '0 0 24px 0' }}>
+            {selectedSituation[lang].subtitle}
+          </p>
+
+          {t.sections.map((section) => (
+            <div key={section.key} style={{ background: 'white', padding: '16px', borderRadius: '8px', marginBottom: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
+              <div style={{ fontSize: '13px', fontWeight: '700', color: purple, marginBottom: '8px' }}>{section.label}</div>
+              <div style={{ fontSize: '14px', color: 'hsl(240, 20%, 30%)', lineHeight: '1.5' }}>{content[section.key]}</div>
+            </div>
+          ))}
+
+          <button
+            onClick={goToList}
+            style={{
+              width: '100%',
+              padding: '16px',
+              fontSize: '16px',
+              fontWeight: '600',
+              background: purple,
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              marginTop: '24px',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = purpleDark; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = purple; }}
+          >
+            {t.next}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (currentScreen === 'paywall') {
+    return <Paywall language={lang} source={paywallSource} onClose={handlePaywallClosed} />;
+  }
+
+  return null;
+};
+
+export default HomePage;
