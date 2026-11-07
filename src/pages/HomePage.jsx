@@ -247,6 +247,10 @@ const HomePage = () => {
                     textAlign: 'left',
                     transform: 'translateY(0)',
                     textDecoration: 'none',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    justifyContent: 'flex-start',
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = 'translateY(-6px)';
@@ -257,7 +261,7 @@ const HomePage = () => {
                     e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
                   }}
                 >
-                  <div style={{ fontSize: '32px', marginBottom: '12px' }}>{situation.emoji}</div>
+                  <div style={{ fontSize: '32px', lineHeight: '40px', height: '40px', marginBottom: '12px' }}>{situation.emoji}</div>
                   <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'hsl(240, 30%, 20%)', margin: '0 0 8px 0', lineHeight: '1.2' }}>
                     {situation[lang].title}
                   </h3>
