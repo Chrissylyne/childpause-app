@@ -18,6 +18,8 @@ const TEXTS = {
     kleinunternehmer: 'Kleinunternehmerin im Sinne von § 19 UStG. Es wird keine Umsatzsteuer ausgewiesen.',
     vatId: (id) => `Umsatzsteuer-Identifikationsnummer gemäß § 27a UStG: ${id}`,
     wIdNr: (id) => `Wirtschafts-Identifikationsnummer gemäß § 139c AO: ${id}`,
+    directorTitle: 'Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV',
+    directorText: (name) => `${name}, Anschrift wie oben.`,
     noticeTitle: 'Hinweis zu den Inhalten',
     notice:
       'Die Inhalte von ChildPause sind Vorschläge für wohlwollende Kommunikation. Sie ersetzen keine medizinische oder psychologische Beratung.',
@@ -38,7 +40,8 @@ const TEXTS = {
     wIdNr: (id) => `Numéro d’identification économique, Wirtschafts-Identifikationsnummer (§ 139c AO) : ${id}`,
     hostTitle: 'Hébergement',
     host: 'Le site est hébergé par Vercel Inc., États-Unis (vercel.com).',
-    directorTitle: 'Directrice de la publication',
+    directorTitle: 'Directrice de la publication (responsable du contenu, § 18 al. 2 MStV)',
+    directorText: (name) => `${name}, adresse ci-dessus.`,
     noticeTitle: 'À propos des contenus',
     notice:
       'Les contenus de ChildPause sont des suggestions de communication bienveillante. Ils ne remplacent pas un avis médical ou psychologique.',
@@ -52,6 +55,7 @@ function ImpressumPage() {
   const { language } = useLanguage();
   const lang = language === 'de' ? 'de' : 'fr';
   const t = TEXTS[lang];
+  const colon = lang === 'fr' ? '\u00a0: ' : ': ';
 
   return (
     <div style={{ minHeight: '60vh', padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
@@ -73,26 +77,27 @@ function ImpressumPage() {
           <br />
           {LEGAL.zip} {LEGAL.city}
           <br />
-          {LEGAL.country}
+          {lang === 'fr' && LEGAL.country === 'Deutschland' ? 'Allemagne' : LEGAL.country}
         </p>
 
         <h2 style={h2}>{t.contact}</h2>
         <p style={{ margin: 0 }}>
-          {t.emailLabel} : <a href={`mailto:${LEGAL.email}`} style={{ color: '#007bff', textDecoration: 'none' }}>{LEGAL.email}</a>
+          {t.emailLabel}{colon}<a href={`mailto:${LEGAL.email}`} style={{ color: '#007bff', textDecoration: 'none' }}>{LEGAL.email}</a>
           <br />
-          {t.formLabel} : <Link to="/contact" style={{ color: '#007bff', textDecoration: 'none' }}>{t.formLink}</Link>
+          {t.formLabel}{colon}<Link to="/contact" style={{ color: '#007bff', textDecoration: 'none' }}>{t.formLink}</Link>
           {LEGAL.phone && (
             <>
               <br />
-              {t.phoneLabel} : {LEGAL.phone}
+              {t.phoneLabel}{colon}{LEGAL.phone}
             </>
           )}
         </p>
 
+        <h2 style={h2}>{t.directorTitle}</h2>
+        <p style={{ margin: 0 }}>{t.directorText(LEGAL.name)}</p>
+
         {lang === 'fr' && (
           <>
-            <h2 style={h2}>{t.directorTitle}</h2>
-            <p style={{ margin: 0 }}>{LEGAL.name}</p>
             <h2 style={h2}>{t.hostTitle}</h2>
             <p style={{ margin: 0 }}>{t.host}</p>
           </>
